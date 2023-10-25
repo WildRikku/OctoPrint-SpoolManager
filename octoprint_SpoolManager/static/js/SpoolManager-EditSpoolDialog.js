@@ -838,7 +838,7 @@ function SpoolManagerEditSpoolDialog(){
             // self.spoolItemForEditing.purchasedOn(null);
             // self.spoolItemForEditing.remainingCombinedWeight(0);
             // self.spoolItemForEditing.totalCombinedWeight(0);
-            
+
             // Force the current day on new spools
             self.spoolItemForEditing.purchasedOnKO(moment().format("YYYY-MM-DD"))
         } else {

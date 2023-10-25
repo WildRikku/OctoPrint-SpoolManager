@@ -370,6 +370,11 @@ FPE;	2.16
                         </div>
                     </div>
 -->
+                    <div class="control-group">
+                        <button class="btn btn-warning" data-bind="click: function() {deleteDatabaseAction('external');}" style="margin-right: 20px;">Initialize Database</button>
+                        <button class="btn btn-info" data-bind="click: testDatabaseConnection" style="margin-right: 20px;">Test Connection</button>
+                    </div>
+
                     <!-- LOCAL DATABASE -->
                     <h4>Local SQLite3 Database <i class='fa fa-spinner fa-spin' data-bind="visible: showLocalBusyIndicator"></i></h4>
                     <label class="radio">
@@ -445,14 +450,12 @@ FPE;	2.16
                                 <option value="postgres">PostgreSQL</option>
                                 <option value="mysql">mySQL</option>
                         </select>
-                        <button class="btn btn-warning pull-right" data-bind="click: function() {deleteDatabaseAction('external');}" style="margin-right: 80px;">ReCreate database</button>
                     </div>
                 </div>
                 <div class="control-group">
                     <label class="control-label">Host</label>
                     <div class="controls">
                         <input type="text" data-bind="value: pluginSettings.databaseHost"/>
-                        <button class="btn btn-info pull-right" data-bind="click: testDatabaseConnection" style="margin-right: 80px;">Test connection</button>
                     </div>
                 </div>
                 <div class="control-group">
