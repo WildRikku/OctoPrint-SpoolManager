@@ -723,7 +723,7 @@ class SpoolManagerAPI(octoprint.plugin.BlueprintPlugin):
 
         successMessage = ""
         if (len(errorCollection) == 0):
-            successMessage = "All data is successful " + importModeText + " with '" + str(len(resultOfSpools)) + "' spools."
+			successMessage = "All data is successful " + importModeText + " with " + str(len(resultOfSpools)) + " spools."
         else:
             successMessage = "Some error(s) occurs! Maybe you need to manually rollback the database!"
         logger.info(successMessage)

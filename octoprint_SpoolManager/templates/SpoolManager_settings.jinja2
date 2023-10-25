@@ -376,7 +376,14 @@ FPE;	2.16
                         <input type="radio" name="externalDatabaseGroup" data-bind="checked: pluginSettings.useExternal, checkedValue: false"> Use local SqLite3 database
                     </label>
 
-                    <div class="controls">
+                    <div class="control-group">
+                        <div class="controls">
+                            <div class="d-flex gap-2 justify-content-center py-5">
+                                <span class="badge rounded-pill badge-success" style="padding: 5px;">Spool Count - <span data-bind="text: databaseMetaData.localSpoolItemCount"></span></span>
+                                <span class="badge rounded-pill badge-info" style="padding: 5px;">Schema Version - <span data-bind="text: databaseMetaData.localSchemeVersionFromDatabaseModel"></span></span>
+                                <span class="badge rounded-pill badge-info" style="padding: 5px;">Plugin Version - <span data-bind="text: databaseMetaData.schemeVersionFromPlugin"></span></span>
+                            </div>
+                        </div>
                     </div>
 
                     <label class="control-label">Database file location</label>
@@ -395,28 +402,41 @@ FPE;	2.16
                         e.g.<code>spoolmanager-backup-20200812-0924.db</code>
                     </div>
                 </div>
-                <div class="control-group no-bottom-gap">
-                    <label class="control-label">Item count</label>
-                    <div class="controls">
-                        <input type="text" disabled class="input-small text-right" data-bind="value: databaseMetaData.localSpoolItemCount" value="123">
-                    </div>
-                </div>
 
                 <div class="control-group">
-                    <label class="control-label">Scheme version</label>
                     <div class="controls">
-                        <input type="text" disabled class="input-small text-right" data-bind="value: databaseMetaData.localSchemeVersionFromDatabaseModel" value="5">
-                        <span>Plugin version</span>
-                        <input type="text" disabled class="input-small text-right" data-bind="value: databaseMetaData.schemeVersionFromPlugin" value="5">
+                        <div class="help-block" data-bind="visible: showInternalDatabaseErrorMessage">
+                            <div class="alert">
+                                <span style="color: red; "><b><div data-bind="text: internalDatabaseErrorMessage"></div></b></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="help-block" data-bind="visible: showInternalSuccessMessage">
+                            <div class="alert">
+                                <font color="green"><b>Database connection successful</b></font>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- EXTERNAL DATABASE
-                <h4>External Database <i class='fa fa-spinner fa-spin' data-bind="visible: showLocalBusyIndicator"></i></h4>
+                <h4>External Database <i class='fa fa-spinner fa-spin' data-bind="visible: showExternalBusyIndicator"></i></h4>
                 <label class="radio">
                     <input type="radio" name="externalDatabaseGroup" data-bind="checked: pluginSettings.useExternal, checkedValue: true"> Use external database
                 </label>
 
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="d-flex gap-2 justify-content-center py-5">
+                            <span class="badge rounded-pill badge-success" style="padding: 5px;">Spool Count - <span data-bind="text: databaseMetaData.externalSpoolItemCount"></span></span>
+                            <span class="badge rounded-pill badge-info" style="padding: 5px;">Schema Version - <span data-bind="text: databaseMetaData.externalSchemeVersionFromDatabaseModel"></span></span>
+                            <span class="badge rounded-pill badge-info" style="padding: 5px;">Plugin Version - <span data-bind="text: databaseMetaData.schemeVersionFromPlugin"></span></span>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="control-group">
                     <label class="control-label">Type</label>
@@ -461,28 +481,26 @@ FPE;	2.16
                     </div>
                 </div>
 
-                <div class="control-group no-bottom-gap">
-                    <label class="control-label">Item count</label>
+                <div class="control-group">
                     <div class="controls">
-                        <input type="text" disabled class="input-small text-right" data-bind="value: databaseMetaData.externalSpoolItemCount" value="123">
+                        <div class="help-block" data-bind="visible: showExternalDatabaseErrorMessage">
+                            <div class="alert">
+                                <span style="color: red; "><b><div data-bind="text: externalDatabaseErrorMessage"></div></b></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="help-block" data-bind="visible: showExternalSuccessMessage">
+                            <div class="alert">
+                                <font color="green"><b>Database connection successful</b></font>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="control-group">
-                    <label class="control-label">Scheme version</label>
-                    <div class="controls">
-                        <input type="text" disabled class="input-small text-right" data-bind="value: databaseMetaData.externalSchemeVersionFromDatabaseModel" value="5">
-                        <span>Plugin version</span>
-                        <input type="text" disabled class="input-small text-right" data-bind="value: databaseMetaData.schemeVersionFromPlugin" value="5">
-                    </div>
-                </div>
-                -->
-                <div class="help-block" data-bind="visible: showDatabaseErrorMessage">
-                    <span style="color: red; "><b><div data-bind="text: databaseErrorMessage"></div></b></span>
-                </div>
-                <div class="help-block" data-bind="visible: showSuccessMessage">
-                    <font color="green"><b>Database connection successful</b></font>
-                </div>
                 <!-- TODO add
                 <div class="help-block" data-bind="visible: showUpdateSchemeMessage">
                     <font color="orange"><b>Databasescheme doesn't match with required scheme version. Please do an <a target="newTab" href="https://github.com/dojohnso/OctoPrint-SpoolManager/wiki/Roadmap-to-an-external-Database">update</a>!</b></font>

@@ -38,7 +38,7 @@ plugin_requires = [
     "pillow", # since 7.0.0 no Python 2.7 Support, see https://github.com/python-pillow/Pillow/blob/master/CHANGES.rst
     # "pillow >=6.2.0, <7.0.0", # since 7.0.0 no Python 2.7 Support, see https://github.com/python-pillow/Pillow/blob/master/CHANGES.rst
     "qrcode",
-    "peewee"
+	"peewee",
     # "psycopg2-binary",  # postgres - driver
     # "pymysql",    #mysql - driver
 ]

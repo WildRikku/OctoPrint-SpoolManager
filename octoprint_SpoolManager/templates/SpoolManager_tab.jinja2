@@ -2,7 +2,7 @@
 {% include "SpoolManager_tab_dialogs.jinja2" %}
 {% import 'SpoolManager_tab_macros.jinja2' as forms %}
 
-<div id="tab_spoolOverview">
+<div id="tab_spoolOverview"">
     <!-- Filter / Sorting -->
     <div data-bind="visible: pluginNotWorking()==true">
         <div class="row-fluid">
@@ -263,7 +263,9 @@
 {#                                                                                           <span data-bind="text: usedWeight, attr: {title: $root.buildTooltipForSpoolItem($data, 'Used weight: ', 'usedWeight')}"></span>g<br/>#}
                                                                                            <span data-bind="text: remainingWeight, attr: {title: $root.buildTooltipForSpoolItem($data, 'Remaining weight: ', 'remainingWeight')}"></span>g<br>
                 </td>
-                <td data-bind="visible: $root.tableAttributeVisibility.used" style="text-align: right;"><span data-bind="text: usedPercentage, attr: {title: $root.buildTooltipForSpoolItem($data, 'Used weight: ', 'usedPercentage')}"></span>%<br>
+                <td data-bind="visible: $root.tableAttributeVisibility.used" style="text-align: right;">
+                
+                <span data-bind="text: usedPercentage, attr: {title: $root.buildTooltipForSpoolItem($data, 'Used weight: ', 'usedPercentage')}"></span>%<br>
                                                                                                         <span data-bind="text: usedLength, attr: {title: $root.buildTooltipForSpoolItem($data, 'Used length: ', 'usedLength')}"></span>mm</td>
                 <td data-bind="visible: $root.tableAttributeVisibility.note"><span data-bind="html: noteHtml, attr: { title: noteText }"></span></td>
               </tr>

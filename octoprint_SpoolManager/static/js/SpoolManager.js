@@ -174,33 +174,49 @@ $(function() {
             externalSpoolItemCount: ko.observable(),
             schemeVersionFromPlugin: ko.observable(),
         }
-        self.showSuccessMessage = ko.observable(false);
-        self.showDatabaseErrorMessage = ko.observable(false);
+        self.showInternalSuccessMessage = ko.observable(false);
+        self.showInternalDatabaseErrorMessage = ko.observable(false);
+        self.showExternalSuccessMessage = ko.observable(false);
+        self.showExternalDatabaseErrorMessage = ko.observable(false);
         self.showUpdateSchemeMessage = ko.observable(false);
-        self.databaseErrorMessage = ko.observable("");
+        self.externalDatabaseErrorMessage = ko.observable("");
+        self.internalDatabaseErrorMessage = ko.observable("");
         self.showLocalBusyIndicator = ko.observable(false);
         self.showExternalBusyIndicator = ko.observable(false);
 
         self.resetDatabaseMessages = function(){
-            self.showSuccessMessage(false);
-            self.showDatabaseErrorMessage(false);
+            self.showInternalSuccessMessage(false);
+            self.showInternalDatabaseErrorMessage(false);
+            self.showExternalSuccessMessage(false);
+            self.showExternalDatabaseErrorMessage(false);
             self.showUpdateSchemeMessage(false);
-            self.databaseErrorMessage("");
+            self.externalDatabaseErrorMessage("");
+            self.internalDatabaseErrorMessage("");
         }
 
         self.handleDatabaseMetaDataResponse = function(metaDataResponse){
             var metadata = metaDataResponse["metadata"];
+            console.log(metadata);
+
             if (metadata != null){
                 var errorMessage = metadata["errorMessage"];
                 if (errorMessage != null && errorMessage.length != 0){
-                    self.showDatabaseErrorMessage(true);
-                    self.databaseErrorMessage(errorMessage);
+                    if (self.pluginSettings.useExternal()) {
+                        self.showExternalDatabaseErrorMessage(true);
+                        self.externalDatabaseErrorMessage(errorMessage);
+                    }
+                    else {
+                        self.showInternalDatabaseErrorMessage(true);
+                        self.internalDatabaseErrorMessage(errorMessage);
+                    }
                 }
                 var success = metadata["success"];
                 if (success != null && success == true){
-                    self.showSuccessMessage(true);
+                    self.showExternalSuccessMessage(true && self.pluginSettings.useExternal());
+                    self.showInternalSuccessMessage(true && !self.pluginSettings.useExternal());
                 } else {
-                    self.showSuccessMessage(false);
+                    self.showExternalSuccessMessage(false && self.pluginSettings.useExternal());
+                    self.showInternalSuccessMessage(false && !self.pluginSettings.useExternal());
                 }
 
                 self.databaseMetaData.localSchemeVersionFromDatabaseModel(metadata["localSchemeVersionFromDatabaseModel"]);
@@ -230,38 +246,22 @@ $(function() {
         }
 
         self.testDatabaseConnection = function(){
-
             self.resetDatabaseMessages()
-            self.showExternalBusyIndicator(true);
+            self.showLocalBusyIndicator(self.pluginSettings.useExternal() == false);
+            self.showExternalBusyIndicator(self.pluginSettings.databasePassword() == true);
 
-//  TODO cleanup          var databaseSettings = {
-//                databaseType: self.pluginSettings.databaseType(),
-//                databaseHost: self.pluginSettings.databaseHost(),
-//                databasePort: self.pluginSettings.databasePort(),
-//                databaseName: self.pluginSettings.databaseName(),
-//                databaseUser: self.pluginSettings.databaseUser(),
-//                databasePassword: self.pluginSettings.databasePassword(),
-//            }
             var databaseSettings = self.buildDatabaseSettings();
-            // api-call
-            self.apiClient.testDatabaseConnection(databaseSettings, function(responseData){
-                self.handleDatabaseMetaDataResponse(responseData);
-                self.showExternalBusyIndicator(false);
-            });
+
+            self.apiClient.loadDatabaseMetaData(function(responseData) {
+                  self.handleDatabaseMetaDataResponse(responseData);
+                  self.showLocalBusyIndicator(false);
+                  self.showExternalBusyIndicator(false);
+             });
         }
 
         self.deleteDatabaseAction = function(databaseType) {
             var result = confirm("Do you really want to delete all SpoolManager data?");
             if (result == true){
-//  TODO cleanup
-//                var databaseSettings = {
-//                    databaseType: self.pluginSettings.databaseType(),
-//                    databaseHost: self.pluginSettings.databaseHost(),
-//                    databasePort: self.pluginSettings.databasePort(),
-//                    databaseName: self.pluginSettings.databaseName(),
-//                    databaseUser: self.pluginSettings.databaseUser(),
-//                    databasePassword: self.pluginSettings.databasePassword(),
-//                }
                 var databaseSettings = self.buildDatabaseSettings();
                 self.apiClient.callDeleteDatabase(databaseType, databaseSettings, function(responseData) {
                     self.spoolItemTableHelper.reloadItems();
@@ -276,9 +276,11 @@ $(function() {
 
               if ("#tab-spool-Storage" == activatedTab){
                   self.resetDatabaseMessages()
-
-                  self.showLocalBusyIndicator(true);
-                  self.showExternalBusyIndicator(true);
+                  
+                  self.showLocalBusyIndicator(self.pluginSettings.useExternal() == false);
+                  self.showExternalBusyIndicator(self.pluginSettings.databasePassword() == true);      
+                  
+                  var databaseSettings = self.buildDatabaseSettings();
                   self.apiClient.loadDatabaseMetaData(function(responseData) {
                         self.handleDatabaseMetaDataResponse(responseData);
                         self.showLocalBusyIndicator(false);
@@ -357,13 +359,10 @@ $(function() {
         const origSaveSettingsFunction = self.settingsViewModel.saveData;
         const newSaveSettingsFunction = function confirmSpoolSelectionBeforeStartPrint(data, successCallback, setAsSending) {
             if (self.pluginSettings.useExternal() == true &&
-                (self.showDatabaseErrorMessage() == true || self.showUpdateSchemeMessage() == true)
+                (self.showExternalDatabaseErrorMessage() == true || self.showInternalDatabaseErrorMessage() == true || 
+                    self.showUpdateSchemeMessage() == true)
                 ){
-                var check = confirm('External database will not work. Save settings anyway?');
-                if (check == true) {
-                    return origSaveSettingsFunction(data, successCallback, setAsSending);
-                }
-                return null;
+                return origSaveSettingsFunction(data, successCallback, setAsSending);
             }
             return origSaveSettingsFunction(data, successCallback, setAsSending);
         }
@@ -1137,6 +1136,9 @@ $(function() {
         }
 
         self.onTabChange = function(next, current){
+            if ("#tab_plugin_SpoolManager" == next) {
+                self.spoolItemTableHelper.reloadItems();
+            }
             //alert("Next:"+next +" Current:"+current);
             if ("#tab_plugin_PrintJobHistory" == next){
                 //self.reloadTableData();
