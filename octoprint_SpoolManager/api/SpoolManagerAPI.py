@@ -772,11 +772,13 @@ class SpoolManagerAPI(octoprint.plugin.BlueprintPlugin):
         if (databaseType == "external"):
             jsonData = request.json
             databaseSettings = self._buildDatabaseSettingsFromJson(jsonData)
+            databaseSettings.useExternal = True
 
         self._databaseManager.reCreateDatabase(databaseSettings)
+        metaDataResult = self._databaseManager.loadDatabaseMetaInformations(None)
 
         return flask.jsonify({
-            "result": "success"
+            "metadata": metaDataResult
         })
 
     #######################################################################################   COPY DATABASE
@@ -786,8 +788,6 @@ class SpoolManagerAPI(octoprint.plugin.BlueprintPlugin):
 
         jsonData = request.json
         databaseSettings = self._buildDatabaseSettingsFromJson(jsonData)
-        # databaseSettings.useExternal = True
-        # self._databaseManager.reCreateDatabase(databaseSettings)
         metaDataResult = self._databaseManager.copySpoolData(databaseSettings)
 
         return flask.jsonify({

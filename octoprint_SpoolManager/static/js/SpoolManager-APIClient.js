@@ -195,9 +195,6 @@ function SpoolManagerAPIClient(pluginId, baseUrl) {
             type: "POST"
         }).always(function( data ){
             responseHandler(data)
-            //shoud be done by the server to make sure the server is informed countdownDialog.modal('hide');
-            //countdownDialog.modal('hide');
-            //countdownCircle = null;
         });
     }
 

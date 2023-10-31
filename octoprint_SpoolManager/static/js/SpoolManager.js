@@ -265,7 +265,10 @@ $(function() {
             var result = confirm("Do you really want to delete all SpoolManager data in the " + databaseType + " database?");
             if (result == true){
                 var databaseSettings = self.buildDatabaseSettings();
+                databaseSettings.useExternal = databaseType == "external"
+                
                 self.apiClient.callDeleteDatabase(databaseType, databaseSettings, function(responseData) {
+                    self.handleDatabaseMetaDataResponse(responseData);
                     self.spoolItemTableHelper.reloadItems();
                 });
             }
