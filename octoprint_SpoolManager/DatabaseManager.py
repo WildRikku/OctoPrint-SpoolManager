@@ -10,6 +10,7 @@ import sqlite3
 
 from octoprint_SpoolManager.WrappedLoggingHandler import WrappedLoggingHandler
 from peewee import *
+from playhouse.shortcuts import model_to_dict, dict_to_model
 
 from octoprint_SpoolManager.api import Transformer
 from octoprint_SpoolManager.common import StringUtils
@@ -80,17 +81,17 @@ class DatabaseManager(object):
 			if ("postgres" == databaseType):
 				# Connect to a Postgres database.
 				database = PostgresqlDatabase(databaseName,
-												   	user=user,
-												   	password=password,
-										   		   	host=host,
-												   	port=port)
+											  user=user,
+											  password=password,
+											  host=host,
+											  port=port)
 			else:
 				# Connect to a MySQL database on network.
 				database = MySQLDatabase(databaseName,
-											   user=user,
-											   password=password,
-											   host=host,
-											   port=port)
+										 user=user,
+										 password=password,
+										 host=host,
+										 port=port)
 
 		return database
 
@@ -127,12 +128,12 @@ class DatabaseManager(object):
 			self.closeDatabase()
 			errorMessage = str(e)
 			if (
-				# - SQLLite
-				errorMessage.startswith("no such table") or
-				# - Postgres
-				"does not exist" in errorMessage or
-				# - mySQL errorcode=1146
-				"doesn\'t exist" in errorMessage
+					# - SQLLite
+					errorMessage.startswith("no such table") or
+					# - Postgres
+					"does not exist" in errorMessage or
+					# - mySQL errorcode=1146
+					"doesn\'t exist" in errorMessage
 			):
 				self._createDatabaseTables()
 				return
@@ -365,17 +366,17 @@ class DatabaseManager(object):
 		BEGIN TRANSACTION;
 		"""
 
-			# ALTER TABLE 'spo_spoolmodel' ADD 'updated' DATETIME;
-			# ALTER TABLE 'spo_spoolmodel' ADD 'originator' CHAR(60);
-			# ALTER TABLE 'spo_spoolmodel' ADD 'materialCharacteristic' VARCHAR(255);
-			# ALTER TABLE 'spo_spoolmodel' ADD 'isActive' INTEGER;
-			# UPDATE 'spo_spoolmodel' SET isActive=1;
-			#
-			# CREATE INDEX spoolmodel_materialCharacteristic ON spo_spoolmodel (materialCharacteristic);
-			# CREATE INDEX spoolmodel_material ON spo_spoolmodel (material);
-			# CREATE INDEX spoolmodel_vendor ON spo_spoolmodel (vendor);
-			#
-			# UPDATE 'spo_pluginmetadatamodel' SET value=5 WHERE key='databaseSchemeVersion';
+		# ALTER TABLE 'spo_spoolmodel' ADD 'updated' DATETIME;
+		# ALTER TABLE 'spo_spoolmodel' ADD 'originator' CHAR(60);
+		# ALTER TABLE 'spo_spoolmodel' ADD 'materialCharacteristic' VARCHAR(255);
+		# ALTER TABLE 'spo_spoolmodel' ADD 'isActive' INTEGER;
+		# UPDATE 'spo_spoolmodel' SET isActive=1;
+		#
+		# CREATE INDEX spoolmodel_materialCharacteristic ON spo_spoolmodel (materialCharacteristic);
+		# CREATE INDEX spoolmodel_material ON spo_spoolmodel (material);
+		# CREATE INDEX spoolmodel_vendor ON spo_spoolmodel (vendor);
+		#
+		# UPDATE 'spo_pluginmetadatamodel' SET value=5 WHERE key='databaseSchemeVersion';
 
 		sql = sql + """
 		COMMIT;
@@ -641,8 +642,8 @@ class DatabaseManager(object):
 				backupCurrentDatabaseSettings = self._databaseSettings
 				self._databaseSettings = databaseSettings
 
-			succesfull = self.connectoToDatabase()
-			if (succesfull == False):
+			succesful = self.connectoToDatabase()
+			if (succesful == False):
 				result = self.getCurrentErrorMessageDict()
 		finally:
 			try:
@@ -755,6 +756,7 @@ class DatabaseManager(object):
 	def reCreateDatabase(self, databaseSettings = None):
 		self._currentErrorMessageDict = None
 		self._logger.info("ReCreating Database")
+		self._logger.info(databaseSettings)
 
 		backupCurrentDatabaseSettings = None
 		if (databaseSettings != None):
@@ -773,6 +775,74 @@ class DatabaseManager(object):
 			if (backupCurrentDatabaseSettings != None):
 				self._databaseSettings = backupCurrentDatabaseSettings
 
+	def copySpoolData(self, databaseSettings = None):
+
+		loadResult = False
+		copySpoolCount = 0
+
+		backupCurrentDatabaseSettings = None
+		if (databaseSettings != None):
+			backupCurrentDatabaseSettings = self._databaseSettings
+		else:
+			# use default settings
+			databaseSettings = self._databaseSettings
+			backupCurrentDatabaseSettings = self._databaseSettings
+
+		try:
+			currentDatabaseType = databaseSettings.type
+			currentUseExternal = databaseSettings.useExternal
+
+			# First load meta from local sqlite database
+			databaseSettings.type = "sqlite"
+			databaseSettings.baseFolder = self._databaseSettings.baseFolder
+			databaseSettings.fileLocation = self._databaseSettings.fileLocation
+			databaseSettings.useExternal = False
+			self._databaseSettings = databaseSettings
+
+			try:
+				self.connectoToDatabase( sendErrorPopUp=False)
+				allSpools = SpoolModel.select()
+				self.closeDatabase()
+			except Exception as e:
+				errorMessage = "local database: " + str(e)
+				self._logger.error("Connecting to local database not possible")
+				self._logger.exception(e)
+				try:
+					self.closeDatabase()
+				except Exception:
+					pass  # ignore close exception
+
+
+			databaseSettings.type = currentDatabaseType
+			databaseSettings.useExternal = True
+			self._databaseSettings = databaseSettings
+
+			try:
+				self.connectoToDatabase( sendErrorPopUp=False)
+				self._createDatabase(True)
+				for spool in allSpools:
+					spoolJson = model_to_dict(spool)
+					SpoolModel.insert(spoolJson).execute()
+					copySpoolCount = copySpoolCount + 1
+				self.closeDatabase()
+			except Exception as e:
+				errorMessage = "database: " + str(e)
+				self._logger.error("Connecting to external database not possible")
+				self._logger.exception(e)
+				try:
+					self.closeDatabase()
+				except Exception:
+					pass  # ignore close exception
+
+		finally:
+			# restore orig. databasettings
+			if (backupCurrentDatabaseSettings != None):
+				self._databaseSettings = backupCurrentDatabaseSettings
+
+		return {
+			"success": loadResult,
+			"copySpoolCount": copySpoolCount
+		}
 
 	################################################################################################ DATABASE OPERATIONS
 	def _handleReusableConnection(self, databaseCallMethode, withReusedConnection, methodeNameForLogging, defaultReturnValue=None):
@@ -934,8 +1004,8 @@ class DatabaseManager(object):
 					else:
 						allMaterials = materialFilter.split(",")
 						myQuery = myQuery.where(SpoolModel.material.in_(allMaterials))
-						# for material in allMaterials:
-						# 	myQuery = myQuery.orwhere((SpoolModel.material == material))
+					# for material in allMaterials:
+					# 	myQuery = myQuery.orwhere((SpoolModel.material == material))
 				# vendorFilter
 				# u'MatterMost,TheFactory'
 				# u''
@@ -947,8 +1017,8 @@ class DatabaseManager(object):
 					else:
 						allVendors = vendorFilter.split(",")
 						myQuery = myQuery.where(SpoolModel.vendor.in_(allVendors))
-						# for vendor in allVendors:
-						# 	myQuery = myQuery.orwhere((SpoolModel.vendor == vendor))
+					# for vendor in allVendors:
+					# 	myQuery = myQuery.orwhere((SpoolModel.vendor == vendor))
 				# colorFilter
 				# u'#ff0000;red,#ff0000;keinRot,#ff0000;deinRot,#ff0000;meinRot,#ffff00;yellow'
 				# u''
@@ -967,8 +1037,8 @@ class DatabaseManager(object):
 					myQuery = myQuery.where(SpoolModel.color.in_(allColors))
 					myQuery = myQuery.where(SpoolModel.colorName.in_(allColorNames))
 
-					#
-					# 	myQuery = myQuery.orwhere(  (SpoolModel.color == color) & (SpoolModel.colorName == colorName) )
+				#
+				# 	myQuery = myQuery.orwhere(  (SpoolModel.color == color) & (SpoolModel.colorName == colorName) )
 				pass
 
 			# mySqlText = myQuery.sql()
@@ -1051,7 +1121,7 @@ class DatabaseManager(object):
 								self._passMessageToClient("error", "DatabaseManager",
 														  "Could not update the Spool, because someone already modified the spool. Do a manuel reload!")
 								return
-							# okay fits, increate version
+						# okay fits, increate version
 						newVersion = versionFromUI + 1
 						spoolModel.version = newVersion
 

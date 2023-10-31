@@ -33,8 +33,8 @@ function SpoolManagerAPIClient(pluginId, baseUrl) {
         return urlContext;
     }
 
-    this.getExportUrl = function(exportType){
-        return _addApiKeyIfNecessary("./plugin/" + this.pluginId + "/exportSpools/" + exportType);
+    this.getExportUrl = function(exportType, databaseInUse){
+        return _addApiKeyIfNecessary("./plugin/" + this.pluginId + "/exportSpools/" + exportType + "?instance=" + databaseInUse);
     }
 
     this.getSampleCSVUrl = function(){
@@ -66,7 +66,6 @@ function SpoolManagerAPIClient(pluginId, baseUrl) {
         jsonPayload = ko.toJSON(databaseSettings)
 
         $.ajax({
-            //url: API_BASEURL + "plugin/"+PLUGIN_ID+"/loadPrintJobHistory",
             url: this.baseUrl + "plugin/" + this.pluginId + "/testDatabaseConnection",
             dataType: "json",
             contentType: "application/json; charset=UTF-8",
@@ -199,6 +198,20 @@ function SpoolManagerAPIClient(pluginId, baseUrl) {
             //shoud be done by the server to make sure the server is informed countdownDialog.modal('hide');
             //countdownDialog.modal('hide');
             //countdownCircle = null;
+        });
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////// Copy Database
+    this.callCopyDatabase = function(databaseSettings, responseHandler) {
+        jsonPayload = ko.toJSON(databaseSettings)
+        $.ajax({
+            url: this.baseUrl + "plugin/"+this.pluginId+"/copyDatabase",
+            dataType: "json",
+            contentType: "application/json; charset=UTF-8",
+            data: jsonPayload,
+            type: "POST"
+        }).always(function( data ){
+            responseHandler(data)
         });
     }
 

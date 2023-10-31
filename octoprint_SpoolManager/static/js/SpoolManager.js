@@ -183,6 +183,7 @@ $(function() {
         self.internalDatabaseErrorMessage = ko.observable("");
         self.showLocalBusyIndicator = ko.observable(false);
         self.showExternalBusyIndicator = ko.observable(false);
+        self.databaseInUse = ko.observable("Internal");
 
         self.resetDatabaseMessages = function(){
             self.showInternalSuccessMessage(false);
@@ -235,6 +236,7 @@ $(function() {
         self.buildDatabaseSettings = function(){
 
             var databaseSettings = {
+                useExternal: self.pluginSettings.useExternal(),
                 databaseType: self.pluginSettings.databaseType(),
                 databaseHost: self.pluginSettings.databaseHost(),
                 databasePort: self.pluginSettings.databasePort(),
@@ -252,7 +254,7 @@ $(function() {
 
             var databaseSettings = self.buildDatabaseSettings();
 
-            self.apiClient.loadDatabaseMetaData(function(responseData) {
+            self.apiClient.testDatabaseConnection(databaseSettings, function(responseData) {
                   self.handleDatabaseMetaDataResponse(responseData);
                   self.showLocalBusyIndicator(false);
                   self.showExternalBusyIndicator(false);
@@ -260,7 +262,7 @@ $(function() {
         }
 
         self.deleteDatabaseAction = function(databaseType) {
-            var result = confirm("Do you really want to delete all SpoolManager data?");
+            var result = confirm("Do you really want to delete all SpoolManager data in the " + databaseType + " database?");
             if (result == true){
                 var databaseSettings = self.buildDatabaseSettings();
                 self.apiClient.callDeleteDatabase(databaseType, databaseSettings, function(responseData) {
@@ -269,10 +271,30 @@ $(function() {
             }
         };
 
+        self.copySpools = function() {
+            var result = confirm("Do you really want to copy all SpoolManager data from the internal database? This will replace all existing data.");
+            if (result == true) {
+                var databaseSettings = self.buildDatabaseSettings();
+                self.apiClient.callCopyDatabase(databaseSettings, function(responseData) {
+                    self.spoolItemTableHelper.reloadItems();
+                    self.apiClient.loadDatabaseMetaData(function(responseData) {
+                        self.handleDatabaseMetaDataResponse(responseData);
+                    });
+                });
+
+            }
+        }
+
         $("#spoolmanger-settings-tab").find('a[data-toggle="tab"]').on('shown', function (e) {
 
               var activatedTab = e.target.hash; // activated tab
               var prevTab = e.relatedTarget.hash; // previous tab
+
+              if (self.pluginSettings.useExternal() == true) {
+                self.databaseInUse("External")
+              } else {
+                self.databaseInUse("Internal")
+              }
 
               if ("#tab-spool-Storage" == activatedTab){
                   self.resetDatabaseMessages()
@@ -283,6 +305,8 @@ $(function() {
                   var databaseSettings = self.buildDatabaseSettings();
                   self.apiClient.loadDatabaseMetaData(function(responseData) {
                         self.handleDatabaseMetaDataResponse(responseData);
+                        self.showExternalSuccessMessage(false);
+                        self.showInternalSuccessMessage(false);
                         self.showLocalBusyIndicator(false);
                         self.showExternalBusyIndicator(false);
                    });
@@ -1027,7 +1051,6 @@ $(function() {
             this.qrCodeBackgroundColor.subscribe(function(newColorValue){
                 self.pluginSettings.qrCodeBackgroundColor(newColorValue);
             });
-
 
             // self.pluginSettings.hideEmptySpoolsInSidebar.subscribe(function(newCheckedVaue){
             //     var payload = {

@@ -257,15 +257,26 @@ FPE;	2.16
 
             <!-- EXPORT / IMPORT - TAB -->
             <div class="tab-pane" id="tab-spool-Export-Import">
+
+                <div class="control-group">
+                    <div class="alert alert-info" style="margin-bottom: 0px !important">
+                        <div style="font-weight: bold">Database in Use: <span data-bind="text: databaseInUse"></span></div>
+                        <div>Importing and exporting of SpoolManager data will be done against this database instance.</div>
+                    </div>
+                </div>
+
                 <h3>Export</h3>
                 <div class="control-group">
                     <div class="controls">
-                        <span><b>SpoolManager Database</b>: Export all data as <a target="_newTab" href="#" data-bind="attr: {href: $root.apiClient.getExportUrl('CSV')}">CSV-File</a></span>
+                        <span><b>SpoolManager Database</b>: Export all data as
+                            <a target="_newTab" href="#" data-bind="visible: pluginSettings.useExternal, attr: {href: $root.apiClient.getExportUrl('CSV', 'external')}">CSV-File</a>
+                            <a target="_newTab" href="#" data-bind="hidden: pluginSettings.useExternal, attr: {href: $root.apiClient.getExportUrl('CSV', 'internal')}">CSV-File</a>
+                        </span>
                     </div>
                 </div>
                 <div class="control-group" data-bind="visible: isFilamentManagerPluginAvailable">
                     <div class="controls">
-                        <span><b>Legacy: Filament Manager Database</b>: Export all data as <a target="_newTab" href="#" data-bind="attr: {href: $root.apiClient.getExportUrl('legacyFilamentManager'), css: {disabled: !$root.apiClient.getExportUrl('legacyFilamentManager')}}">CSV-File</a></span>
+                        <span><b>Legacy: Filament Manager Database</b>: Export all data as <a target="_newTab" href="#" data-bind="attr: {href: $root.apiClient.getExportUrl('legacyFilamentManager', 'internal'), css: {disabled: !$root.apiClient.getExportUrl('legacyFilamentManager', 'internal')}}">CSV-File</a></span>
                     </div>
                 </div>
 
@@ -284,10 +295,10 @@ FPE;	2.16
                         <div class="row">
                             <div class="span6">
                                 <label class="radio">
-                                    <input type="radio" name="importCSVMode" value="replace" data-bind="checked: pluginSettings.importCSVMode"> Replace current database
+                                    <input type="radio" name="importCSVMode" value="replace" data-bind="checked: pluginSettings.importCSVMode"> Replace <span data-bind="text: databaseInUse().toLowerCase()"></span> database
                                 </label>
                                 <label class="radio">
-                                        <input type="radio" name="importCSVMode" value="append" data-bind="checked: pluginSettings.importCSVMode"> Append to database
+                                        <input type="radio" name="importCSVMode" value="append" data-bind="checked: pluginSettings.importCSVMode"> Append to <span data-bind="text: databaseInUse().toLowerCase()"></span> database
                                 </label>
                             </div>
 
@@ -317,10 +328,10 @@ FPE;	2.16
                 <div class="control-group">
                     <div class="controls">
                         <div>
-                            The CSV data will be added or totaly replaced the current database.
+                            The CSV data will be added into or totally replace the current database.
                         </div>
-                        <div>
-                            HINT: Before importing a backup file of the database will be automatically created. See Storage-Tab for more details.<!-- <a href="#tab-pjh-Storage" data-toggle="tab">storage folder</a>. -->
+                        <div data-bind="hidden: pluginSettings.useExternal">
+                            HINT: Before importing, a backup file of the database will be automatically created. See Storage tab for more details.<!-- <a href="#tab-pjh-Storage" data-toggle="tab">storage folder</a>. -->
                         </div>
                         <br>
                         <div>
@@ -370,10 +381,6 @@ FPE;	2.16
                         </div>
                     </div>
 -->
-                    <div class="control-group">
-                        <button class="btn btn-warning" data-bind="click: function() {deleteDatabaseAction('external');}" style="margin-right: 20px;">Initialize Database</button>
-                        <button class="btn btn-info" data-bind="click: testDatabaseConnection" style="margin-right: 20px;">Test Connection</button>
-                    </div>
 
                     <!-- LOCAL DATABASE -->
                     <h4>Local SQLite3 Database <i class='fa fa-spinner fa-spin' data-bind="visible: showLocalBusyIndicator"></i></h4>
@@ -383,7 +390,7 @@ FPE;	2.16
 
                     <div class="control-group">
                         <div class="controls">
-                            <div class="d-flex gap-2 justify-content-center py-5">
+                            <div style="margin-top: 20px">
                                 <span class="badge rounded-pill badge-success" style="padding: 5px;">Spool Count - <span data-bind="text: databaseMetaData.localSpoolItemCount"></span></span>
                                 <span class="badge rounded-pill badge-info" style="padding: 5px;">Schema Version - <span data-bind="text: databaseMetaData.localSchemeVersionFromDatabaseModel"></span></span>
                                 <span class="badge rounded-pill badge-info" style="padding: 5px;">Plugin Version - <span data-bind="text: databaseMetaData.schemeVersionFromPlugin"></span></span>
@@ -395,8 +402,6 @@ FPE;	2.16
                     <div class="controls">
                         <div class="input-append">
                             <input type="text" disabled class="input-xlarge text-right" data-bind="value: pluginSettings.databaseFileLocation"/>
-                            <a href="#" class="btn btn-danger" title="ReCreate Database" data-bind="click: function() {deleteDatabaseAction('internal');}"><i class="icon-trash"></i></a>
-                            <a href="#" class="btn btn-primary" title="Download Database" data-bind="attr: {href: downloadDatabaseUrl}" target="_blank"><i class="icon-download"></i></a>
                         </div>
                     </div>
                 </div>
@@ -405,6 +410,24 @@ FPE;	2.16
                     <label class="control-label">Database Backupname</label>
                     <div class="controls">
                         e.g.<code>spoolmanager-backup-20200812-0924.db</code>
+                    </div>
+                </div>
+
+                <div class="control-group" data-bind="hidden: pluginSettings.useExternal">
+                    <div class="controls">
+                        <button class="btn btn-info" title="Test Connection" data-bind="click: testDatabaseConnection" style="margin-right: 5px;">Test Connection</button>
+                        <button class="btn btn-danger" title="ReCreate Database" data-bind="click: function() {deleteDatabaseAction('internal');}" style="margin-right: 5px;"><i class="icon-trash"></i></button>
+                        <a href="#" class="btn btn-primary" title="Download Database" data-bind="attr: {href: downloadDatabaseUrl}" target="_blank" style="margin-right: 5px;"><i class="icon-download"></i></a>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="help-block" data-bind="visible: showInternalSuccessMessage">
+                            <div class="alert">
+                                <font color="green"><b>Database connection successful</b></font>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -417,25 +440,19 @@ FPE;	2.16
                         </div>
                     </div>
                 </div>
-                
-                <div class="control-group">
-                    <div class="controls">
-                        <div class="help-block" data-bind="visible: showInternalSuccessMessage">
-                            <div class="alert">
-                                <font color="green"><b>Database connection successful</b></font>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <h4>External Database <i class='fa fa-spinner fa-spin' data-bind="visible: showExternalBusyIndicator"></i></h4>
                 <label class="radio">
-                    <input type="radio" name="externalDatabaseGroup" data-bind="checked: pluginSettings.useExternal, checkedValue: true"> Use external database
+                    <input type="radio" name="externalDatabaseGroup" data-bind="checked: pluginSettings.useExternal, checkedValue: true"> Use external database<br>
+                    <span class="help-inline" style="color: red;">
+                        When using an external database, you will be responsible for performing your own backups
+                    </span>
                 </label>
+
 
                 <div class="control-group">
                     <div class="controls">
-                        <div class="d-flex gap-2 justify-content-center py-5">
+                        <div style="margin-top: 20px">
                             <span class="badge rounded-pill badge-success" style="padding: 5px;">Spool Count - <span data-bind="text: databaseMetaData.externalSpoolItemCount"></span></span>
                             <span class="badge rounded-pill badge-info" style="padding: 5px;">Schema Version - <span data-bind="text: databaseMetaData.externalSchemeVersionFromDatabaseModel"></span></span>
                             <span class="badge rounded-pill badge-info" style="padding: 5px;">Plugin Version - <span data-bind="text: databaseMetaData.schemeVersionFromPlugin"></span></span>
@@ -484,11 +501,19 @@ FPE;	2.16
                     </div>
                 </div>
 
+                <div class="control-group" data-bind="visible: pluginSettings.useExternal">
+                    <div class="controls">
+                        <button class="btn btn-info" title="Test Connection" data-bind="click: testDatabaseConnection" style="margin-right: 5px;">Test Connection</button>
+                        <button class="btn btn-danger" title="ReCreate Database" data-bind="click: function() {deleteDatabaseAction('external');}" style="margin-right: 5px;"><i class="icon-trash"></i></button>
+                        <button class="btn btn-primary" title="Copy Spools from Internal DB" data-bind="enable: showExternalSuccessMessage, click: copySpools" style="margin-right: 5px;">Copy Spools from Internal DB</button>
+                    </div>
+                </div>
+
                 <div class="control-group">
                     <div class="controls">
                         <div class="help-block" data-bind="visible: showExternalDatabaseErrorMessage">
                             <div class="alert">
-                                <span style="color: red; "><b><div data-bind="text: externalDatabaseErrorMessage"></div></b></span>
+                                <span style="color: red;"><b><div data-bind="text: externalDatabaseErrorMessage"></div></b></span>
                             </div>
                         </div>
                     </div>

@@ -743,10 +743,9 @@ class SpoolmanagerPlugin(
             if (selectedSpool != None):
                 self.set_temp_offsets(toolIndex, selectedSpool)
 
-        #
-        # databaseSettings = self._buildDatabaseSettingsFromPluginSettings()
-        #
-        # self._databaseManager.assignNewDatabaseSettings(databaseSettings)
+		# In case we are switching between internal and external storage
+		databaseSettings = self._buildDatabaseSettingsFromPluginSettings()
+		self._databaseManager.assignNewDatabaseSettings(databaseSettings)
         # testResult = self._databaseManager.testDatabaseConnection(databaseSettings)
         # if (testResult != None):
         #   # TODO Send to client
