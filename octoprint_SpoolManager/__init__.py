@@ -898,18 +898,13 @@ class SpoolmanagerPlugin(
                     branch="main",
                     comittish=["main"]
                 ),
-                #prerelease_branches=[
-#                    dict(
-                    #   name="Release & Candidate",
-                    #   branch="pre-release",
-                    #   comittish=["pre-release", "main"],
-                    # ),
-#                    dict(
-#                        name="Release & in development",
-#                        branch="dev",
-#                        comittish=["dev", "main"],
-#                    )
-#                ],
+                prerelease_branches=[
+                    dict(
+                       name="Release & Testing",
+                       branch="testing",
+                       comittish=["testing", "main"],
+                     )
+                ],
 
                 # update method: pip
                 pip="https://github.com/WildRikku/OctoPrint-SpoolManager/releases/download/{target_version}/main.zip"
