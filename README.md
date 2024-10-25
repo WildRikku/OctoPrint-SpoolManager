@@ -36,12 +36,6 @@ Note that this does not necessarily mean that this plugin will not work with old
 - [X] Multi Tool support
 - [X] Support for manual mid-print filament change
 
-## Planning / next features
-- [ ] External Database (IN PROGRESS)
-- [ ] PrintJobHistory integration [PrintJobHistory-Plugin](https://github.com/dojohnso/OctoPrint-PrintJobHistory)
-- [ ] Capture Spool-Image
-- [ ] ...more planing details could be found [here](https://github.com/dojohnso/OctoPrint-SpoolManager/projects/1)
-
 ## Screenshots
 <!---
 ![plugin-settings](screenshots/plugin-settings.png "Plugin-Settings")
@@ -58,28 +52,25 @@ Note that this does not necessarily mean that this plugin will not work with old
 Install via the bundled [Plugin Manager](http://docs.octoprint.org/en/master/bundledplugins/pluginmanager.html)
 or manually using this URL:
 
-    https://github.com/dojohnso/OctoPrint-SpoolManager/releases/latest/download/main.zip
+    https://github.com/WildRikku/OctoPrint-SpoolManager/releases/latest/download/main.zip
 
 After installation, you can listen on three release channels (since 1.6.0).
 What does this mean: Each channel has its own release-version and each release has a different kind of functionality and stability.
 
 - **"Only Release"**: Only stable and tested versions will be shown in the software-update section of OctoPrint
-- **"Release & Candidate"**: Beside the stable release, you can also see the "release-candidates", like '''1.7.0rc3'''.
-  The rc's includde new functionalty/bugfixes and are already tested by the community.. so by YOU ;-)
-- **"Release & Candidate & under Development"**: Beside stable and rc, you will be informed about development versions.
-  A development version like '''1.8.0.dev5``` could include a new (experimental) feature/bugfixs, but it is not fully tested by the community
+- **"Release & Testing"**: Beside the stable release, you can also see the "release-candidates", like '''1.7.0rc3'''.
+  The rc's include new functionality/bugfixes and should be considered untested. You can help bring them to a stable release by leaving feedback.
 
 Changing between each release is done via the "Software Update section" in the settings.
 ![release-channels](screenshots/release-channels.png "Release channels")
 
-Hint: "Easy-switching" is possible with OctoPrint-Version 1.8.0 (see https://github.com/OctoPrint/OctoPrint/issues/4238).
-At the meantime you need to uninstall and install the version you like from the selected channel...or stay in one channel ;-)
+Hint: "Easy-switching" is possible since OctoPrint version 1.8.0 (see https://github.com/OctoPrint/OctoPrint/issues/4238).
 
 
 ## Versions
 
-see [Release-Overview](https://github.com/dojohnso/OctoPrint-SpoolManager/releases/)
-
+see [Release overview](https://github.com/WildRikku/OctoPrint-SpoolManager/releases/)
+and [Release overview by previous maintainer](https://github.com/dojohnso/OctoPrint-SpoolManager/releases/)
 
 ---
 # Developer - Section

@@ -827,11 +827,13 @@ $(function() {
 
                     var warning = "";
                     var warning2 = "";
-                    if (responseData.metaOrAttributesMissing){
-                        warning = "ATTENTION: Needed filament could not calculated (missing metadata or spool-fields)\n\n";
+                    if (responseData.metaDataMissing) {
+                        warning = "ATTENTION: Needed filament could not be calculated (missing metadata - wait for the uploaded file to be processed)\n\n";
                         warning2 = " (maybe)"
                     }
-
+                    if (responseData.attributesMissing) {
+                        warning = "ATTENTION: Needed filament could not be calculated (missing spool-fields - edit your spool)\n\n";
+                    }
 
                     if (result.noSpoolSelected.length) {
                         itemList = [];

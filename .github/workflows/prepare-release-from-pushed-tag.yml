@@ -1,0 +1,54 @@
+name: Tag pushed - prepare release
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.*' # keep it generic but mostly numerical for versions. note that these are glob patterns, not regex
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "PrepareRelease" - more would create more runners and we don't need that
+  PrepareRelease:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Check out repository code # this step uses another repo so it just needs a name and "uses"
+        uses: actions/checkout@v2
+
+      - name: Check current version against tag # this step is coded directly into this file
+        env:
+          TAG_ID: ${{ github.ref_name }} # pass this github variable into the script
+        run: |
+          PLUGIN_VERSION=$(cat setup.py | grep 'plugin_version = "*"' | cut -d '"' -f2)
+          echo "Plugin Version in code: $PLUGIN_VERSION"
+          if [ "$PLUGIN_VERSION" != "$TAG_ID" ]; then exit 1; fi
+
+      - name: Build ZIP archive
+        run: zip -r main.zip * -i '\octoprint_*' 'translations' 'README.md' 'requirements.txt' 'setup.py' 'LICENSE.txt'
+
+      - name: Find and close milestone with same name as tag # and save it to env for use with the release notes generator
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MILESTONE: ${{ github.ref_name }}
+        run: |
+          echo $MILESTONE
+          MILESTONE_NUMBER=$(gh api /repos/{owner}/{repo}/milestones | jq '.[] | select(.title==env.MILESTONE) | .number')
+          echo "MILESTONE_NUMBER=$MILESTONE_NUMBER" >> $GITHUB_ENV
+          echo '{"state": "closed"}' | gh api --method PATCH repos/{owner}/{repo}/milestones/$MILESTONE_NUMBER --input -
+
+      - name: Create release notes # this is another step with an external repo, this time with a variable passed
+        uses: WildRikku/release-notes-generator-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List files in the repository for debugging
+        run: ls ${{ github.workspace }}
+
+      - name: Create release draft
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          MILESTONE: ${{ github.ref_name }}
+        run: |
+          gh release create "$MILESTONE" --notes-file release_file.md --draft --verify-tag --title "Version $MILESTONE (draft)"
+          gh release upload "$MILESTONE" main.zip

@@ -325,7 +325,11 @@ class SpoolManagerAPI(octoprint.plugin.BlueprintPlugin):
         reminderSelectingSpool = self._settings.get_boolean([SettingsKeys.SETTINGS_KEY_REMINDER_SELECTING_SPOOL])
 
         spoolModels = self.loadSelectedSpools()
+        # define variables for missing data here because we might have multiple tools and one tool with missing data
+        # is enough to cause problems
         metaOrAttributesMissing = False
+        metaDataMissing = False
+        attributesMissing = False
         result = {
             'noSpoolSelected': [],
             'filamentNotEnough': [],
@@ -370,8 +374,12 @@ class SpoolManagerAPI(octoprint.plugin.BlueprintPlugin):
             #               "notEnough": notEnough,
             #               "spoolSelected": True
             # ]
+
+            # TODO: remove combined attribute - possibly API breaking change
             if (requiredWeightResult["metaDataMissing"] == True or requiredWeightResult["attributesMissing"] == True):
                 metaOrAttributesMissing = True
+            metaDataMissing = metaDataMissing or requiredWeightResult["metaDataMissing"]
+            attributesMissing = attributesMissing or requiredWeightResult["attributesMissing"]
 
             detailedSpoolResult = None
             if ("detailedSpoolResult" in requiredWeightResult and len(requiredWeightResult["detailedSpoolResult"]) > 0):
@@ -419,7 +427,9 @@ class SpoolManagerAPI(octoprint.plugin.BlueprintPlugin):
 
         return flask.jsonify({
             "result": result,
-            "metaOrAttributesMissing": metaOrAttributesMissing,
+            "metaOrAttributesMissing": metaOrAttributesMissing,  # deprecated
+            "metaDataMissing": metaDataMissing,
+            "attributesMissing": attributesMissing,
             "toolOffsetEnabled": self._settings.get_boolean([SettingsKeys.SETTINGS_KEY_TOOL_OFFSET_ENABLED]),
             "bedOffsetEnabled": self._settings.get_boolean([SettingsKeys.SETTINGS_KEY_BED_OFFSET_ENABLED]),
             "enclosureOffsetEnabled": self._settings.get_boolean([SettingsKeys.SETTINGS_KEY_ENCLOSURE_OFFSET_ENABLED]),
