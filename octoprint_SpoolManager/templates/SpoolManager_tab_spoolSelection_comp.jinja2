@@ -153,8 +153,8 @@ File includes all Templates that are needed for custom Knockout.js components, s
                             <!-- ko if: vendor -->
                             (<span data-bind="text: vendor"></span>)
                             <!-- /ko -->
-                            <span data-bind="text: $root.remainingText($data), attr: {title: $root.buildTooltipForSpoolItem($data, 'Remaining weight: ', 'remainingWeight')}"
-                                  class="spool-remaining" title="Remaining weight"></span>
+                            <span data-bind="text: $root.remainingText($data)"
+                                  class="spool-remaining" title="Remaining weight and length"></span>
                             <!-- ko if: lastUse || firstUse-->
                             (Last/First-Use <span data-bind="text: lastUse"></span> / <span data-bind="text: firstUse"></span>)
                             <!-- /ko -->

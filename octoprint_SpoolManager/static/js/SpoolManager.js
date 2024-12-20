@@ -560,7 +560,9 @@ $(function() {
         }
 
         self.remainingText = function(spoolItem){
-            var remainingInfo = "("+_buildRemainingText(spoolItem) + ")";
+            var remainingWeight = _buildRemainingText(spoolItem);
+            var remainingLength = (Number(self.buildTooltipForSpoolItem(spoolItem, '', 'remainingLength'))/1000).toFixed(2);
+            var remainingInfo = "(" + remainingWeight + ", " + remainingLength + "m)";
             return remainingInfo;
         }
 
