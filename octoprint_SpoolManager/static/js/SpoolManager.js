@@ -566,13 +566,20 @@ $(function() {
             return remainingInfo;
         }
 
-        self.buildTooltipForSpoolItem = function(spoolItem, textPrefix, attribute){
-            var value = "";
+        self.buildTooltipForSpoolItem = function(spoolItem, textPrefix, attribute, unit, textPrefix2, attribute2, unit2){
+            var tooltip = "";
+            
+            // İlk özellik için tooltip
             if (spoolItem[attribute]() != null){
-                value = spoolItem[attribute]();
+                tooltip = textPrefix + spoolItem[attribute]() + (unit || "");
             }
-            var toolTip = textPrefix + value;
-            return toolTip;
+            
+            // İkinci özellik varsa ekle
+            if (attribute2 && spoolItem[attribute2]() != null){
+                tooltip += (tooltip ? ", " : "") + textPrefix2 + spoolItem[attribute2]() + (unit2 || "");
+            }
+            
+            return tooltip;
         }
 
         self.getSpoolItemSelectedTool = function(databaseId) {
