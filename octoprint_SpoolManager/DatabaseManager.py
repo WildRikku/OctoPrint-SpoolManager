@@ -52,19 +52,19 @@ class DatabaseManager(object):
 		self._sqlLogger = logging.getLogger(parentLogger.name + "." + self.__class__.__name__ + ".SQL")
 
 		self._database = None
-		self._databseSettings = None
+		self._databaseSettings = None
 		self._sendDataToClient = None
 		self._isConnected = False
 		self._currentErrorMessageDict = None
 
 	################################################################################################## private functions
 	# "databaseSettings"] = {
-	# "type": "postgres",
+	# "type": "mysql",
 	# "host": "localhost",
-	# "port": 5432,
+	# "port": 8080,
 	# "databaseName": "SpoolManagerDatabase",
-	# "user": "Olli",
-	# "password": "illO"
+	# "user": "",
+	# "password": ""
 
 	def _buildDatabaseConnection(self):
 		database = None
@@ -234,7 +234,7 @@ class DatabaseManager(object):
 				localSchemeVersionFromDatabaseModel.value = "7"
 				localSchemeVersionFromDatabaseModel.save()
 
-				# do expicit commit
+				# do explicit commit
 				transaction.commit()
 			except:
 				# Because this block of code is wrapped with "atomic", a
@@ -637,7 +637,7 @@ class DatabaseManager(object):
 		result = None
 		backupCurrentDatabaseSettings = None
 		try:
-			# use provided databasesettings or default if not provided
+			# use provided database settings or default if not provided
 			if (databaseSettings != None):
 				backupCurrentDatabaseSettings = self._databaseSettings
 				self._databaseSettings = databaseSettings
@@ -919,7 +919,7 @@ class DatabaseManager(object):
 				except Exception:
 					pass  # ignore close exception
 
-			# Use orign Databasetype to collect the other meta data (if neeeded)
+			# Use origin Database type to collect the other metadata (if needed)
 			databaseSettings.type = currentDatabaseType
 			databaseSettings.useExternal = currentUseExternal
 			if (databaseSettings.useExternal == True):
@@ -938,7 +938,7 @@ class DatabaseManager(object):
 			except Exception:
 				pass #ignore close exception
 		finally:
-			# restore orig. databasettings
+			# restore orig. database settings
 			if (backupCurrentDatabaseSettings != None):
 				self._databaseSettings = backupCurrentDatabaseSettings
 
