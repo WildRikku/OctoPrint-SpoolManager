@@ -1197,6 +1197,21 @@ $(function() {
             //}
         }
 
+        self.calculateRemainingPercentage = function(spoolItem) {
+            if (!spoolItem.remainingLength() || !spoolItem.totalLength()) {
+                return {
+                    width: 0,
+                    isLow: true
+                };
+            }
+            var percentage = (Number(spoolItem.remainingLength()) / Number(spoolItem.totalLength())) * 100;
+            percentage = Math.min(Math.max(percentage, 0), 100);
+            return {
+                width: percentage,
+                isLow: percentage < 20
+            };
+        };
+
     }
 
     /* view model class, parameters for constructor, container to bind to
