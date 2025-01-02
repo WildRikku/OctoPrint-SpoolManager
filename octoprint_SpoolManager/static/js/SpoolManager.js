@@ -1003,7 +1003,7 @@ $(function() {
             // Load all Spools
             self.loadSpoolsForSidebar();
             // Edit Spool Dialog Binding
-            self.spoolDialog.initBinding(self.apiClient, self.pluginSettings, self.printerProfilesViewModel);
+            self.spoolDialog.initBinding(self.apiClient, self.pluginSettings, self.printerProfilesViewModel, self.printerStateViewModel);
             // Import Dialog
             self.csvImportDialog.init(self.apiClient);
             // Database connection problem dialog

@@ -477,12 +477,13 @@ function SpoolManagerEditSpoolDialog(){
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////// PUBLIC
-    this.initBinding = function(apiClient, pluginSettings, printerProfilesViewModel){
+    this.initBinding = function(apiClient, pluginSettings, printerProfilesViewModel, printerStateViewModel){
 
         self.autoUpdateEnabled = false;
         self.apiClient = apiClient;
         self.pluginSettings = pluginSettings;
         self.printerProfilesViewModel = printerProfilesViewModel;
+        self.printerStateViewModel = printerStateViewModel;
 
         self.spoolDialog = $("#dialog_spool_edit");
         self.templateSpoolDialog = $("#dialog_template_spool_selection");
@@ -966,8 +967,20 @@ function SpoolManagerEditSpoolDialog(){
         self.apiClient.callSaveSpool(self.spoolItemForEditing, function(allPrintJobsResponse){
             self.spoolItemForEditing.isSpoolVisible(false);
             self.spoolDialog.modal('hide');
-            // var specialCloseAction = self.isExistingSpool() == false ? "saveNewSpool"
-            self.closeDialogHandler(true, "save");
+            if (self.spoolItemForEditing.selectedForTool() != undefined && self.printerStateViewModel.isPrinting()) {
+                // spool that is currently printed from was updated - warn
+                console.log(self.spoolItemForEditing.selectedForTool());
+                alert("Your changes will not be applied automatically because a print is running. You can apply the changes by manually re-selecting the spool.");
+                self.closeDialogHandler(true);
+            }
+            else if(self.spoolItemForEditing.selectedForTool() != undefined) {
+                // spool that is currently selected for printing was updated - refresh
+                self.closeDialogHandler(true, "selectSpoolForPrinting", self.spoolItemForEditing);
+            }
+            else {
+                // some other spool was updated - not relevant
+                self.closeDialogHandler(true);
+            }
         });
     }
 
