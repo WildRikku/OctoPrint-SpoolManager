@@ -109,34 +109,20 @@ class SpoolmanagerPlugin(
         enclosureOffsetEnabled = self._settings.get_boolean([SettingsKeys.SETTINGS_KEY_ENCLOSURE_OFFSET_ENABLED])
 
         offset_dict = dict()
-        if (toolOffsetEnabled == True and spoolModel != None):
-            # toolIndex should be tool0
-            offset_dict["tool"+str(toolIndex)] = spoolModel.offsetTemperature if spoolModel.offsetTemperature is not None else 0
+        if toolOffsetEnabled == True and spoolModel is not None:
+            if spoolModel.offsetTemperature is not None:
+                offset_dict["tool"+str(toolIndex)] = spoolModel.offsetTemperature
 
-        if (bedOffsetEnabled == True and spoolModel != None):
-            if (spoolModel.offsetBedTemperature != None):
-                if (self._isNewOffsetTemperatureGreater("bed", spoolModel.offsetBedTemperature) == True):
-                    offset_dict["bed"] = spoolModel.offsetBedTemperature
+        if bedOffsetEnabled == True and spoolModel is not None:
+            if spoolModel.offsetBedTemperature is not None:
+                offset_dict["bed"] = spoolModel.offsetBedTemperature
 
-        if (enclosureOffsetEnabled == True and spoolModel != None):
-            if (spoolModel.offsetEnclosureTemperature != None):
-                if (self._isNewOffsetTemperatureGreater("chamber", spoolModel.offsetEnclosureTemperature) == True):
-                    offset_dict["chamber"] = spoolModel.offsetEnclosureTemperature
+        if enclosureOffsetEnabled == True and spoolModel is not None:
+            if spoolModel.offsetEnclosureTemperature is not None:
+                offset_dict["chamber"] = spoolModel.offsetEnclosureTemperature
 
-        if (len(offset_dict) != 0):
+        if len(offset_dict) != 0:
             self._printer.set_temperature_offset(offset_dict)
-
-
-    def _isNewOffsetTemperatureGreater(self, selectedOffset, newOffset):
-
-        allTemperatures = self._printer.get_current_temperatures()
-        selectedTemperature =  allTemperatures[selectedOffset] if selectedOffset in allTemperatures else None
-        if (selectedTemperature != None):
-            currentOffset = selectedTemperature["offset"]
-            if (currentOffset != None and newOffset > currentOffset):
-                return True
-        return False
-
 
     def clear_temp_offsets(self):
         toolOffsetEnabled = self._settings.get_boolean([SettingsKeys.SETTINGS_KEY_TOOL_OFFSET_ENABLED])
