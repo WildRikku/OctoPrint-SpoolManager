@@ -838,7 +838,7 @@ function SpoolManagerEditSpoolDialog(){
             // self.spoolItemForEditing.purchasedOn(null);
             // self.spoolItemForEditing.remainingCombinedWeight(0);
             // self.spoolItemForEditing.totalCombinedWeight(0);
-            
+
             // Force the current day on new spools
             self.spoolItemForEditing.purchasedOnKO(moment().format("YYYY-MM-DD"))
         } else {
@@ -943,7 +943,7 @@ function SpoolManagerEditSpoolDialog(){
         // Input validation
         var displayName = self.spoolItemForEditing.displayName();
         if (!displayName || displayName.trim().length === 0){
-            alert("Displayname not entered!");
+            alert("Display name not entered!");
             return;
         }
         // workaround

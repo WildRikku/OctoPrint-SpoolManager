@@ -1037,20 +1037,20 @@ class DatabaseManager(object):
 							versionFromDatabase = currentSpoolModel.version if currentSpoolModel.version != None else 1
 							if (versionFromUI != versionFromDatabase):
 								self._passMessageToClient("error", "DatabaseManager",
-														  "Could not update the Spool, because someone already modified the spool. Do a manuel reload!")
+														  "Could not update the Spool, because someone already modified the spool. Do a manual reload!")
 								return
-							# okay fits, increate version
+							# okay fits, increase version
 						newVersion = versionFromUI + 1
 						spoolModel.version = newVersion
 
-					# Not needed any more, we have multi-temlates
+					# Not needed any more, we have multi-templates
 					# if (spoolModel.isTemplate == True):
 					# 	#  remove template flag from last templateSpool
 					# 	SpoolModel.update({SpoolModel.isTemplate: False}).where(SpoolModel.isTemplate == True).execute()
 
 					spoolModel.save()
 					databaseId = spoolModel.get_id()
-					# do expicit commit
+					# do explicit commit
 					transaction.commit()
 				except Exception as e:
 					# Because this block of code is wrapped with "atomic", a
