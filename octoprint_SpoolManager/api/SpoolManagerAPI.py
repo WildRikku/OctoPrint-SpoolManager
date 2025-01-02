@@ -359,7 +359,7 @@ class SpoolManagerAPI(octoprint.plugin.BlueprintPlugin):
                 "enclosureOffset": spoolModel.offsetEnclosureTemperature if spoolModel else ''
             }
 
-            requiredWeightResult = self.checkRemainingFilament(toolIndex)
+            requiredWeightResult = self.checkRemainingFilament(toolIndex, shouldWarn=False)
             # "metaDataMissing": metaDataMissing,
             # "warnUser": fromPluginSettings,
             # "attributesMissing": someAttributesMissing,

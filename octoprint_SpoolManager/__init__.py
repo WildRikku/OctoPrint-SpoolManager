@@ -63,13 +63,14 @@ class SpoolmanagerPlugin(
 
     ################################################################################################### public functions
 
-    def checkRemainingFilament(self, forToolIndex=None):
+    def checkRemainingFilament(self, forToolIndex=None, shouldWarn=True):
         """
         Checks if all spools or single spool includes enough filament
         :param forToolIndex check only for the provided toolIndex
         :return: see
+        @param shouldWarn: can be set to 'False' if warnings should not be sent to the user
         """
-        shouldWarn = self._settings.get_boolean([SettingsKeys.SETTINGS_KEY_WARN_IF_FILAMENT_NOT_ENOUGH])
+        shouldWarn = shouldWarn and self._settings.get_boolean([SettingsKeys.SETTINGS_KEY_WARN_IF_FILAMENT_NOT_ENOUGH])
 
         # - check, if spool change in pause-mode
 
@@ -541,6 +542,7 @@ class SpoolmanagerPlugin(
 
     def _on_clientOpened(self, payload):
         # start-workaround https://github.com/foosel/OctoPrint/issues/3400
+        # TODO remove workaround
         import time
         time.sleep(3)
         selectedSpoolsAsDicts = []
@@ -578,7 +580,7 @@ class SpoolmanagerPlugin(
                                     pluginNotWorking = pluginNotWorking
                                     ))
         # data for the sidebar
-        self.checkRemainingFilament()
+        self.checkRemainingFilament(shouldWarn=False)
         pass
 
     def _on_clientClosed(self, payload):
