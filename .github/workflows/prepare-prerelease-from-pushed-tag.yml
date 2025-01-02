@@ -1,13 +1,13 @@
-name: Tag pushed - prepare release
+name: Tag pushed - prepare pre-release
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+' # note that these are glob patterns, not regex
+      - '[0-9]+.[0-9]+.[0-9]+[ab][0-9]+' # note that these are glob patterns, not regex
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "PrepareRelease" - more would create more runners and we don't need that
-  PrepareRelease:
+  PreparePreRelease:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -18,7 +18,7 @@ jobs:
 
       - name: Check current version against tag # this step is coded directly into this file
         env:
-          TAG_ID: ${{ github.ref_name }} # pass this github variable into the script
+          TAG_ID: ${{ github.ref_name }} # pass this GitHub variable into the script
         run: |
           PLUGIN_VERSION=$(cat setup.py | grep 'plugin_version = "*"' | cut -d '"' -f2)
           echo "Plugin Version in code: $PLUGIN_VERSION"
@@ -27,15 +27,18 @@ jobs:
       - name: Build ZIP archive
         run: zip -r main.zip * -i '\octoprint_*' 'translations' 'README.md' 'requirements.txt' 'setup.py' 'LICENSE.txt'
 
-      - name: Find and close milestone with same name as tag # and save it to env for use with the release notes generator
+      - name: Find milestone based on tag # and save it to env for use with the release notes generator
         env:
           GH_TOKEN: ${{ github.token }}
-          MILESTONE: ${{ github.ref_name }}
+          VERSIONTAG: ${{ github.ref_name }}
         run: |
+          echo $VERSIONTAG
+          MILESTONE_PARTS=( $(grep -Eo '[0-9.]+|[^0-9.]+' <<<"$VERSIONTAG") )
+          MILESTONE=${MILESTONE_PARTS[0]}
           echo $MILESTONE
-          MILESTONE_NUMBER=$(gh api /repos/{owner}/{repo}/milestones | jq '.[] | select(.title==env.MILESTONE) | .number')
+          MILESTONE_NUMBER=$(gh api /repos/{owner}/{repo}/milestones | jq --arg MILESTONE "$MILESTONE" '.[] | select(.title=="\($MILESTONE)") | .number')
+          echo $MILESTONE_NUMBER
           echo "MILESTONE_NUMBER=$MILESTONE_NUMBER" >> $GITHUB_ENV
-          echo '{"state": "closed"}' | gh api --method PATCH repos/{owner}/{repo}/milestones/$MILESTONE_NUMBER --input -
 
       - name: Create release notes # this is another step with an external repo, this time with a variable passed
         uses: WildRikku/release-notes-generator-action@master
@@ -50,5 +53,5 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           MILESTONE: ${{ github.ref_name }}
         run: |
-          gh release create "$MILESTONE" --notes-file release_file.md --draft --verify-tag --title "Version $MILESTONE (draft)"
+          gh release create "$MILESTONE" --notes-file release_file.md --draft --prerelease --verify-tag --title "Version $MILESTONE (draft)"
           gh release upload "$MILESTONE" main.zip
