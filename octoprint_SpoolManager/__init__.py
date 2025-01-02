@@ -5,12 +5,9 @@ import math
 from datetime import datetime
 import flask
 import octoprint.plugin
-from flask import request
 from octoprint.events import Events
-from octoprint.util.comm import MachineCom
 
 from octoprint_SpoolManager.DatabaseManager import DatabaseManager
-# from octoprint_SpoolManager.Odometer import FilamentOdometer
 
 from octoprint_SpoolManager.newodometer import NewFilamentOdometer
 
@@ -69,7 +66,6 @@ class SpoolmanagerPlugin(
     def checkRemainingFilament(self, forToolIndex=None):
         """
         Checks if all spools or single spool includes enough filament
-
         :param forToolIndex check only for the provided toolIndex
         :return: see
         """
@@ -97,7 +93,7 @@ class SpoolmanagerPlugin(
         # ]
 
         # for a single check, don't send the info to the browser
-        if (forToolIndex == None):
+        if forToolIndex is None:
             requiredWeightResult["action"] = "requiredFilamentChanged"
             self._sendDataToClient(requiredWeightResult)
 
@@ -130,7 +126,7 @@ class SpoolmanagerPlugin(
         enclosureOffsetEnabled = self._settings.get_boolean([SettingsKeys.SETTINGS_KEY_ENCLOSURE_OFFSET_ENABLED])
 
         offset_dict = dict()
-        if (toolOffsetEnabled == True):
+        if toolOffsetEnabled:
             printer_profile = self._printer_profile_manager.get_current_or_default()
             printerProfileToolCount = printer_profile['extruder']['count']
             # for toolIndex, filamentLength in enumerate(self.metaDataFilamentLengths):
@@ -138,13 +134,13 @@ class SpoolmanagerPlugin(
                 # toolIndex should be tool0
                 offset_dict["tool"+str(toolIndex)] = 0
 
-        if (bedOffsetEnabled == True):
+        if bedOffsetEnabled:
             offset_dict["bed"] = 0
 
-        if (enclosureOffsetEnabled == True):
+        if enclosureOffsetEnabled:
             offset_dict["chamber"] = 0
 
-        if (len(offset_dict) != 0):
+        if len(offset_dict) != 0:
             self._printer.set_temperature_offset(offset_dict)
 
     ################################################################################################## private functions
@@ -179,7 +175,7 @@ class SpoolmanagerPlugin(
 
     # get the plugin with status information
     # [0] == status-string
-    # [1] == implementaiton of the plugin
+    # [1] == implementation of the plugin
     def _getPluginInformation(self, pluginKey):
 
         status = None
@@ -187,12 +183,12 @@ class SpoolmanagerPlugin(
 
         if pluginKey in self._plugin_manager.plugins:
             plugin = self._plugin_manager.plugins[pluginKey]
-            if plugin != None:
-                if (plugin.enabled == True):
+            if plugin is not None:
+                if plugin.enabled:
                     status = "enabled"
-                    # for OP 1.4.x we need to check agains "icompatible"-attribute
-                    if (hasattr(plugin, 'incompatible') ):
-                        if (plugin.incompatible == False):
+                    # for OP 1.4.x we need to check against "incompatible"-attribute
+                    if hasattr(plugin, 'incompatible'):
+                        if not plugin.incompatible:
                             implementation = plugin.implementation
                         else:
                             status = "incompatible"
@@ -208,7 +204,7 @@ class SpoolmanagerPlugin(
         return [status, implementation]
 
     def _extrusionValuesChanged(self, newExtrusionValues):
-        if (self._settings.get_boolean([SettingsKeys.SETTINGS_KEY_EXTRUSION_DEBUGGING_ENABLED])):
+        if self._settings.get_boolean([SettingsKeys.SETTINGS_KEY_EXTRUSION_DEBUGGING_ENABLED]):
             self._sendDataToClient(dict(action="extrusionValuesChanged",
                                         extrusionValues=newExtrusionValues))
 
@@ -217,16 +213,16 @@ class SpoolmanagerPlugin(
     def _readingFilamentMetaData(self):
         filamentLengthPresentInMeta = False
         self.metaDataFilamentLengths = []
-        if ("job" in self._printer.get_current_data()):
+        if "job" in self._printer.get_current_data():
             jobData = self._printer.get_current_data()["job"]
-            if ("file" in jobData):
+            if "file" in jobData:
                 fileData = jobData["file"]
                 origin = fileData["origin"]
                 path = fileData["path"]
-                if (origin !=  None and path != None):
+                if origin is not None and path is not None:
                     metadata = self._file_manager.get_metadata(origin, path)
-                    if ("analysis" in metadata):
-                        if ("filament" in metadata["analysis"]):
+                    if "analysis" in metadata:
+                        if "filament" in metadata["analysis"]:
                             for toolName, toolData in metadata["analysis"]["filament"].items():
                                 toolIndex = int(toolName[4:])
                                 self.metaDataFilamentLengths += [0.0] * (toolIndex + 1 - len(self.metaDataFilamentLengths))
@@ -251,7 +247,7 @@ class SpoolmanagerPlugin(
             "notEnough": overallNotEnough,
             "detailedSpoolResult": []
         }
-        if (metaDataMissing == True):
+        if metaDataMissing:
             return requiredWeightResultDict
 
         # loop over all tools
@@ -260,7 +256,7 @@ class SpoolmanagerPlugin(
                 continue
             selectedSpool = selectedSpools[toolIndex] if toolIndex < len(selectedSpools) else None
 
-            if (selectedSpool != None):
+            if selectedSpool is not None:
                 diameter = selectedSpool.diameter
                 density = selectedSpool.density
                 totalWeight = selectedSpool.totalWeight
@@ -278,7 +274,7 @@ class SpoolmanagerPlugin(
                     usedWeight = 0.0
 
                 if missing_fields:
-                    if (warnUser == True):
+                    if warnUser:
                         self._sendMessageToClient(
                             "warning", "Filament prediction not possible!",
                             "Following fields not set in Spool '%s' (in tool %d): %s" % (selectedSpool.displayName, toolIndex, ', '.join(missing_fields))
@@ -304,7 +300,7 @@ class SpoolmanagerPlugin(
                         not_a_number_fields.append('used weight')
 
                     if not_a_number_fields:
-                        if (warnUser == True):
+                        if warnUser:
                             self._sendMessageToClient(
                                 "warning", "Filament prediction not possible!",
                                 "One of the needed fields are not a number in Spool '%s' (in tool %d): %s" % (selectedSpool.displayName, toolIndex, ', '.join(not_a_number_fields))
@@ -318,18 +314,18 @@ class SpoolmanagerPlugin(
                         # TODO don't calculate here use the value from the database
                         remainingWeight = totalWeight - usedWeight
 
-                        saftyLengthInMM = self._settings.get_int([SettingsKeys.SETTINGS_KEY_SAFETY_LENGTH])
-                        if (saftyLengthInMM != 0):
-                            saftyRequiredWeight = self._calculateWeight(saftyLengthInMM, diameter, density)
-                            self._logger.info("saftyWeight '" + str(saftyRequiredWeight) + "' from saftyLengthInMM '" + str(saftyLengthInMM) + "' calculated")
-                            requiredWeight = requiredWeight + saftyRequiredWeight
+                        safetyLengthInMM = self._settings.get_int([SettingsKeys.SETTINGS_KEY_SAFETY_LENGTH])
+                        if safetyLengthInMM != 0:
+                            safetyRequiredWeight = self._calculateWeight(safetyLengthInMM, diameter, density)
+                            self._logger.info("safetyWeight '" + str(safetyRequiredWeight) + "' from safetyLengthInMM '" + str(safetyLengthInMM) + "' calculated")
+                            requiredWeight = requiredWeight + safetyRequiredWeight
 
                         self._logger.info("tool" + str(toolIndex) + ", requiredWeight '" + str(requiredWeight) + "',  remainingWeight '" + str(remainingWeight) + "'")
 
                         notEnough = False
                         if remainingWeight < requiredWeight and requiredWeight > 0:
                             self._logger.info("Filament not enough!")
-                            if (warnUser == True):
+                            if warnUser:
                                 self._sendMessageToClient(
                                     "warning", "Filament not enough!",
                                     "Required on tool %d: %dg, available from Spool '%s': '%dg'" % (toolIndex, requiredWeight, selectedSpool.displayName, remainingWeight)
@@ -350,7 +346,7 @@ class SpoolmanagerPlugin(
                         }
                         requiredWeightResultDict["detailedSpoolResult"].append(detailedSpoolResultItem)
             else:
-                # No selected spool for this tool-index, just create an simple entry
+                # No selected spool for this tool-index, just create a simple entry
                 detailedSpoolResultItem = {
                     "toolIndex": toolIndex,
                     "requiredLength": filamentLength,
@@ -367,7 +363,7 @@ class SpoolmanagerPlugin(
 
 
     def _calculateWeight(self, length, diameter, density):
-        radius = diameter / 2.0;
+        radius = diameter / 2.0
         volume = length * math.pi * (radius * radius) / 1000
         result = volume * density
         return result
@@ -458,8 +454,8 @@ class SpoolmanagerPlugin(
         for toolIndex, filamentLength in enumerate(self.metaDataFilamentLengths):
             spoolModel = selectedSpools[toolIndex] if toolIndex < len(selectedSpools) else None
 
-            if (spoolModel != None):
-                if (StringUtils.isEmpty(spoolModel.firstUse) == True):
+            if spoolModel is not None:
+                if StringUtils.isEmpty(spoolModel.firstUse):
                     firstUse = datetime.now()
                     spoolModel.firstUse = firstUse
                     self._databaseManager.saveSpool(spoolModel)
@@ -485,7 +481,7 @@ class SpoolmanagerPlugin(
             try:
                 allExtrusions = self.myFilamentOdometer.getExtrusionAmount()
                 currentExtrusionLength = allExtrusions[toolIndex]
-            except (KeyError, IndexError) as e:
+            except (KeyError, IndexError):
                 self._logger.info("Tool %d: No filament extruded" % toolIndex)
                 continue
             self._logger.info("Tool %d: Extruded filament length: %s" % (toolIndex, str(currentExtrusionLength)))
@@ -503,7 +499,7 @@ class SpoolmanagerPlugin(
                 )
             else:
                 usedWeight = self._calculateWeight(currentExtrusionLength, diameter, density)
-                spoolUsedWeight = 0.0 if spoolModel.usedWeight == None else spoolModel.usedWeight
+                spoolUsedWeight = 0.0 if spoolModel.usedWeight is None else spoolModel.usedWeight
                 newUsedWeight = spoolUsedWeight + usedWeight
                 spoolModel.usedWeight = newUsedWeight
                 self._logger.info("Tool %d: spoolUsedWeight: %s" % (toolIndex, str(spoolUsedWeight)))
@@ -540,7 +536,7 @@ class SpoolmanagerPlugin(
         requiredWeightResult["action"] = "requiredFilamentChanged"
         self._sendDataToClient(requiredWeightResult)
 
-        if ("paused" != printStatus):
+        if "paused" != printStatus:
             self.clear_temp_offsets()
 
     def _on_clientOpened(self, payload):
@@ -557,10 +553,10 @@ class SpoolmanagerPlugin(
 
         # Don't show already shown message
         if (self.databaseConnectionProblemConfirmed == False and
-            connectionErrorResult != None):
-            databaseErrorMessageDict = self._databaseManager.getCurrentErrorMessageDict();
+                connectionErrorResult is not None):
+            databaseErrorMessageDict = self._databaseManager.getCurrentErrorMessageDict()
             # The databaseErrorMessages should always be present in that case.
-            if (databaseErrorMessageDict != None):
+            if databaseErrorMessageDict is not None:
                 self._logger.error(databaseErrorMessageDict)
                 self._sendDataToClient(dict(action = "showConnectionProblem",
                                             type = databaseErrorMessageDict["type"],
@@ -569,16 +565,16 @@ class SpoolmanagerPlugin(
 
         # Send plugin storage information
         ## Storage
-        if (connectionErrorResult == None):
+        if connectionErrorResult is None:
             selectedSpoolsAsDicts = [
                 (None if selectedSpool is None else Transformer.transformSpoolModelToDict(selectedSpool))
                 for selectedSpool in self.loadSelectedSpools()
             ]
 
-        pluginNotWorking = connectionErrorResult != None
-        self._sendDataToClient(dict(action = "initalData",
+        pluginNotWorking = connectionErrorResult is not None
+        self._sendDataToClient(dict(action = "initialData",
                                     selectedSpools = selectedSpoolsAsDicts,
-                                    isFilamentManagerPluginAvailable = self._filamentManagerPluginImplementation != None,
+                                    isFilamentManagerPluginAvailable =self._filamentManagerPluginImplementation is not None,
                                     pluginNotWorking = pluginNotWorking
                                     ))
         # data for the sidebar
@@ -597,7 +593,6 @@ class SpoolmanagerPlugin(
     def api_getSelectedSpoolInformations(self):
         """
         Returns the current extruded filament for each tool
-        :param string path:
         :return: array of spoolData-object ....
         """
         spoolModels = self.loadSelectedSpools()
@@ -606,7 +601,7 @@ class SpoolmanagerPlugin(
         while toolIndex < len(spoolModels):
             spoolModel = spoolModels[toolIndex]
             spoolData = None
-            if (spoolModel != None):
+            if spoolModel is not None:
                 spoolData = {
                     "toolIndex": toolIndex,
                     "databaseId": spoolModel.databaseId,
@@ -628,7 +623,6 @@ class SpoolmanagerPlugin(
     def api_getExtrusionAmount(self):
         """
         Returns the current extruded filament for each tool
-        :param string path:
         :return: array of ....
         """
         return self.myFilamentOdometer.getExtrusionAmount()
@@ -662,28 +656,28 @@ class SpoolmanagerPlugin(
         #   print(payload)
         #   pass
 
-        if (Events.CLIENT_OPENED == event):
+        if Events.CLIENT_OPENED == event:
             self._on_clientOpened(payload)
             return
-        if (Events.CLIENT_CLOSED == event):
+        if Events.CLIENT_CLOSED == event:
             self._on_clientClosed(payload)
             return
 
-        elif (Events.PRINT_STARTED == event):
+        elif Events.PRINT_STARTED == event:
             self.alreadyCanceled = False
             self._on_printJobStarted()
 
-        elif (Events.PRINT_PAUSED == event):
+        elif Events.PRINT_PAUSED == event:
             self._on_printJobFinished("paused", payload)
 
-        elif (Events.PRINT_DONE == event):
+        elif Events.PRINT_DONE == event:
             self._on_printJobFinished("success", payload)
 
-        elif (Events.PRINT_FAILED == event):
-            if self.alreadyCanceled == False:
+        elif Events.PRINT_FAILED == event:
+            if not self.alreadyCanceled:
                 self._on_printJobFinished("failed", payload)
 
-        elif (Events.PRINT_CANCELLED == event):
+        elif Events.PRINT_CANCELLED == event:
             self.alreadyCanceled = True
             self._on_printJobFinished("canceled", payload)
 
@@ -731,7 +725,7 @@ class SpoolmanagerPlugin(
         self._readingFilamentMetaData()
         for toolIndex, filamentLength in enumerate(self.metaDataFilamentLengths):
             selectedSpool = selectedSpools[toolIndex] if toolIndex < len(selectedSpools) else None
-            if (selectedSpool != None):
+            if selectedSpool is not None:
                 self.set_temp_offsets(toolIndex, selectedSpool)
 
         #
@@ -749,7 +743,7 @@ class SpoolmanagerPlugin(
         if len(request.values) != 0:
             action = request.values["action"]
 
-            # deceide if you want the reset function in you settings dialog
+            # decide if you want the reset function in you settings dialog
             if "isResetSettingsEnabled" == action:
                 return flask.jsonify(enabled="true")
 
@@ -758,10 +752,10 @@ class SpoolmanagerPlugin(
                 self._settings.save()
                 return flask.jsonify(self.get_settings_defaults())
 
-            # because of some race conditions, we can't push the initalDate during client-open event. So we provide the settings on request
+            # because of some race conditions, we can't push the initialDate during client-open event. So we provide the settings on request
             if "additionalSettingsValues" == action:
                 return flask.jsonify({
-                    "isFilamentManagerPluginAvailable":self._filamentManagerPluginImplementation != None
+                    "isFilamentManagerPluginAvailable": self._filamentManagerPluginImplementation is not None
                 })
 
     ##~~ SettingsPlugin mixin
@@ -775,7 +769,7 @@ class SpoolmanagerPlugin(
         settings[SettingsKeys.SETTINGS_KEY_SELECTED_SPOOLS_DATABASE_IDS] = []
         settings[SettingsKeys.SETTINGS_KEY_HIDE_EMPTY_SPOOL_IN_SIDEBAR] = False
         settings[SettingsKeys.SETTINGS_KEY_HIDE_INACTIVE_SPOOL_IN_SIDEBAR] = True
-        ## Genral
+        ## General
         settings[SettingsKeys.SETTINGS_KEY_REMINDER_SELECTING_SPOOL] = True
         settings[SettingsKeys.SETTINGS_KEY_WARN_IF_SPOOL_NOT_SELECTED] = True
         settings[SettingsKeys.SETTINGS_KEY_WARN_IF_FILAMENT_NOT_ENOUGH] = True
@@ -804,7 +798,7 @@ class SpoolmanagerPlugin(
         settings[SettingsKeys.SETTINGS_KEY_EXTRUSION_DEBUGGING_ENABLED] = False
 
         ## Database
-        ## nested settings are not working, because if only a few attributes are changed it only returns these few attribuets, instead the default values + adjusted values
+        ## nested settings are not working, because if only a few attributes are changed it only returns these few attributes, instead the default values + adjusted values
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_USE_EXTERNAL] = False
         datbaseLocation = DatabaseManager.buildDefaultDatabaseFileLocation(self.get_plugin_data_folder())
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_LOCAL_FILELOCATION] = datbaseLocation
@@ -878,7 +872,7 @@ class SpoolmanagerPlugin(
                 displayName="SpoolManager Plugin",
                 displayVersion=self._plugin_version,
 
-                # version check: github repository
+                # version check: GitHub repository
                 type="github_release",
                 user="WildRikku",
                 repo="OctoPrint-SpoolManager",
