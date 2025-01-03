@@ -879,18 +879,19 @@ class SpoolmanagerPlugin(
                 user="WildRikku",
                 repo="OctoPrint-SpoolManager",
                 current=self._plugin_version,
+                prerelease=True,
 
                 # Release channels
                 stable_branch=dict(
                     name="Only Release",
                     branch="main",
-                    comittish=["main"]
+                    commitish=["main"]
                 ),
                 prerelease_branches=[
                     dict(
                        name="Release & Testing",
                        branch="testing",
-                       comittish=["testing", "main"],
+                       commitish=["testing", "main"],
                      )
                 ],
 
