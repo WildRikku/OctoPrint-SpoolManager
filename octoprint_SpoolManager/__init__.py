@@ -879,7 +879,6 @@ class SpoolmanagerPlugin(
                 user="WildRikku",
                 repo="OctoPrint-SpoolManager",
                 current=self._plugin_version,
-                prerelease=True,
 
                 # Release channels
                 stable_branch=dict(
