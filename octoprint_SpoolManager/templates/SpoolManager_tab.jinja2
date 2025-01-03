@@ -139,7 +139,7 @@
         Name
         Material
         Last/First Ise
-        Weight
+        Remaining
         Used
         Note
         -->
@@ -200,7 +200,7 @@
                             <div class="control-group">
                                 <div class="controls">
                                     <label class="checkbox" style="margin-left:10px">
-                                        <input type="checkbox" data-bind="checked: tableAttributeVisibility.weight"> Weight
+                                        <input type="checkbox" data-bind="checked: tableAttributeVisibility.weight"> Remaining
                                     </label>
                                 </div>
                             </div>
@@ -243,7 +243,7 @@
                     <th style="width: 23%" data-bind="visible: tableAttributeVisibility.displayName">Name</th>
                     <th style="width: 15%" data-bind="visible: tableAttributeVisibility.material">Material</th>
                     <th style="width: 12%;" data-bind="visible: tableAttributeVisibility.lastFirstUse">Last / First use</th>
-                    <th style="text-align: center; width: 15%;" data-bind="visible: tableAttributeVisibility.weight">Weight</th>
+                    <th style="text-align: center; width: 15%;" data-bind="visible: tableAttributeVisibility.weight">Remaining</th>
                     <th style="text-align: center; width: 15%;" data-bind="visible: tableAttributeVisibility.used">Used</th>
                     <th style="width: 15%;" data-bind="visible: tableAttributeVisibility.note">Note</th>
     <!-- TODO remove action column                <th style="width: 9%"></th>
@@ -259,12 +259,16 @@
                         <span style="vertical-align:super" data-bind="text: material"></span>
                     </div></td>
                 <td data-bind="visible: $root.tableAttributeVisibility.lastFirstUse"><span data-bind="text: formatOnlyDate($data, 'lastUse')"></span><br><span data-bind="text: formatOnlyDate($data, 'firstUse')"></span></td>
-                <td data-bind="visible: $root.tableAttributeVisibility.weight" style="text-align: right;"><span data-bind="text: totalWeight, attr: {title: $root.buildTooltipForSpoolItem($data, 'Total weight: ', 'totalWeight')}"></span>g<br/>
-{#                                                                                           <span data-bind="text: usedWeight, attr: {title: $root.buildTooltipForSpoolItem($data, 'Used weight: ', 'usedWeight')}"></span>g<br/>#}
-                                                                                           <span data-bind="text: remainingWeight, attr: {title: $root.buildTooltipForSpoolItem($data, 'Remaining weight: ', 'remainingWeight')}"></span>g<br>
+                <td data-bind="visible: $root.tableAttributeVisibility.weight" style="text-align: right;">
+                    <span data-bind="text: totalWeight, attr: {title: $root.buildTooltipForSpoolItem($data, 'Total weight: ', 'totalWeight')}"></span>g<br/>
+                    <span data-bind="text: remainingWeight, attr: {title: $root.buildTooltipForSpoolItem($data, 'Remaining weight: ', 'remainingWeight')}"></span>g<br>
+                    <span data-bind="text: (Number($root.buildTooltipForSpoolItem($data, '', 'remainingLength'))/1000).toFixed(2), attr: {title: $root.buildTooltipForSpoolItem($data, 'Remaining length: ', 'remainingLength')}"></span>m<br>
                 </td>
-                <td data-bind="visible: $root.tableAttributeVisibility.used" style="text-align: right;"><span data-bind="text: usedPercentage, attr: {title: $root.buildTooltipForSpoolItem($data, 'Used weight: ', 'usedPercentage')}"></span>%<br>
-                                                                                                        <span data-bind="text: usedLength, attr: {title: $root.buildTooltipForSpoolItem($data, 'Used length: ', 'usedLength')}"></span>mm</td>
+                <td data-bind="visible: $root.tableAttributeVisibility.used" style="text-align: right;">
+                    <span data-bind="text: usedPercentage, attr: {title: $root.buildTooltipForSpoolItem($data, 'Used: ', 'usedPercentage')}"></span>%<br>
+                    <span data-bind="text: usedWeight, attr: {title: $root.buildTooltipForSpoolItem($data, 'Used weight: ', 'usedWeight')}"></span>g<br/>
+                    <span data-bind="text: (Number($root.buildTooltipForSpoolItem($data, '', 'usedLength'))/1000).toFixed(2), attr: {title: $root.buildTooltipForSpoolItem($data, 'Used length: ', 'usedLength')}"></span>m
+                </td>
                 <td data-bind="visible: $root.tableAttributeVisibility.note"><span data-bind="html: noteHtml, attr: { title: noteText }"></span></td>
               </tr>
             </tbody>

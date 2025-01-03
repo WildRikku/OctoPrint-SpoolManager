@@ -560,17 +560,26 @@ $(function() {
         }
 
         self.remainingText = function(spoolItem){
-            var remainingInfo = "("+_buildRemainingText(spoolItem) + ")";
+            var remainingWeight = _buildRemainingText(spoolItem);
+            var remainingLength = (Number(self.buildTooltipForSpoolItem(spoolItem, '', 'remainingLength'))/1000).toFixed(2);
+            var remainingInfo = "(" + remainingWeight + ", " + remainingLength + "m)";
             return remainingInfo;
         }
 
-        self.buildTooltipForSpoolItem = function(spoolItem, textPrefix, attribute){
-            var value = "";
+        self.buildTooltipForSpoolItem = function(spoolItem, textPrefix, attribute, unit, textPrefix2, attribute2, unit2){
+            var tooltip = "";
+            
+            // İlk özellik için tooltip
             if (spoolItem[attribute]() != null){
-                value = spoolItem[attribute]();
+                tooltip = textPrefix + spoolItem[attribute]() + (unit || "");
             }
-            var toolTip = textPrefix + value;
-            return toolTip;
+            
+            // İkinci özellik varsa ekle
+            if (attribute2 && spoolItem[attribute2]() != null){
+                tooltip += (tooltip ? ", " : "") + textPrefix2 + spoolItem[attribute2]() + (unit2 || "");
+            }
+            
+            return tooltip;
         }
 
         self.getSpoolItemSelectedTool = function(databaseId) {
@@ -1187,6 +1196,21 @@ $(function() {
             }
             //}
         }
+
+        self.calculateRemainingPercentage = function(spoolItem) {
+            if (!spoolItem.remainingLength() || !spoolItem.totalLength()) {
+                return {
+                    width: 0,
+                    isLow: true
+                };
+            }
+            var percentage = (Number(spoolItem.remainingLength()) / Number(spoolItem.totalLength())) * 100;
+            percentage = Math.min(Math.max(percentage, 0), 100);
+            return {
+                width: percentage,
+                isLow: percentage < 20
+            };
+        };
 
     }
 
