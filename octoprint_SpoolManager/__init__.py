@@ -892,6 +892,7 @@ class SpoolmanagerPlugin(
                        commitish=["testing", "main"],
                      )
                 ],
+                force_base=True, # undocumented parameter necessary when using a1 version notation
 
                 # update method: pip
                 pip="https://github.com/WildRikku/OctoPrint-SpoolManager/releases/download/{target_version}/main.zip"
