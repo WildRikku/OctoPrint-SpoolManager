@@ -53,5 +53,5 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           MILESTONE: ${{ github.ref_name }}
         run: |
-          gh release create "$MILESTONE" --notes-file release_file.md --draft --prerelease --verify-tag --title "Version $MILESTONE (draft)"
+          gh release create "$MILESTONE" --notes-file release_file.md --target testing --draft --prerelease --verify-tag --title "Version $MILESTONE (draft)"
           gh release upload "$MILESTONE" main.zip
