@@ -808,8 +808,8 @@ class SpoolmanagerPlugin(
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_HOST] = "localhost"
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_PORT] = 5432
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_NAME] = "SpoolDatabase"
-        settings[SettingsKeys.SETTINGS_KEY_DATABASE_USER] = "Olli"
-        settings[SettingsKeys.SETTINGS_KEY_DATABASE_PASSWORD] = "illO"
+        settings[SettingsKeys.SETTINGS_KEY_DATABASE_USER] = ""
+        settings[SettingsKeys.SETTINGS_KEY_DATABASE_PASSWORD] = ""
         # {
         #   "localDatabaseFileLocation": "",
         #   "type": "postgres",
