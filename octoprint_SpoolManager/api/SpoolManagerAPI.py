@@ -614,11 +614,11 @@ class SpoolManagerAPI(octoprint.plugin.BlueprintPlugin):
     @octoprint.plugin.BlueprintPlugin.route("/generateQRCodeView/<string:databaseId>", methods=["GET"])
     def generateSpoolQRCodeHTMLView(self, databaseId):
         htmlContent = ""
-        spoolModel = self._databaseManager.loadSpool(databaseId);
+        spoolModel = self._databaseManager.loadSpool(databaseId)
         if (spoolModel is not None):
             self._logger.info("Generate HTML iew for QR-Code")
             htmlContent = \
-                        "<h3>Database Id: " + str(databaseId) + "</h3>" \
+                        "<h3>Database Id: " + str(spoolModel.databaseId) + "</h3>" \
                         "<h3>Spoolname: " + spoolModel.displayName + "</h3>" \
                         "<img loading='lazy' src='/plugin/SpoolManager/generateQRCode/"+str(databaseId)+"' />"
         else:
