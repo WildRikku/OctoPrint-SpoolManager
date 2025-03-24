@@ -124,13 +124,12 @@ or use `octoprint.plugin.EventHandlerPlugin` with something like this:
             ## do something usefull
 ---
 
-### Used UI-Tools
+### UI dependencies
 * Color-Picker:
 Pick-a-Color https://github.com/lauren/pick-a-color/
 * Color Helper:
 https://github.com/bgrins/TinyColor
 * Date-Picker:
-~~bootstrap-datapicker https://github.com/uxsolutions/bootstrap-datepicker~~
 datepicker https://github.com/fengyuanchen/datepicker
 
 * datetimepicker
@@ -142,13 +141,3 @@ select2 https://select2.org/
 
 * WYSIWYG - Editor
 quill https://quilljs.com/
-
-------
-    docker-compose up
-_
-
-    docker-compose down --volumes
-_
-
-    docker-compose run postgres bash
-
