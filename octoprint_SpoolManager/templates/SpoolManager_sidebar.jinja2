@@ -32,8 +32,12 @@
                 <!-- ko if: vendor -->
                 (<span data-bind="text: vendor"></span>)
                 <!-- /ko -->
-                <span data-bind="text: $root.remainingText($data), attr: {title: $root.buildTooltipForSpoolItem($data, 'Remaining weight: ', 'remainingWeight')}"
-                      class="spool-remaining" title="Remaining weight"></span>
+                <div class="spool-remaining-container">
+                    <div class="spool-remaining-text" data-bind="text: $root.remainingText($data), attr: {title: $root.buildTooltipForSpoolItem($data, 'Remaining weight: ', 'remainingWeight', 'g', ' Remaining length: ', 'remainingLength', 'mm')}"></div>
+                    <div class="spool-remaining-bar-container">
+                        <div class="spool-remaining-bar" data-bind="style: { width: $root.calculateRemainingPercentage($data).width + '%' }, css: { 'low-amount': $root.calculateRemainingPercentage($data).isLow }"></div>
+                    </div>
+                </div>
             </div>
             <div>
                 <div class="btn-group">
