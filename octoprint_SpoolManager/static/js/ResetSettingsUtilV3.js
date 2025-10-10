@@ -63,14 +63,17 @@ function ResetSettingsUtilV3(pluginSettings){
                             for(var propName in data){
                                 propValue = data[propName];
                                 // nested object, like databaseSettings? only a depth of 1
-                                if ("object" == typeof(propValue)){
+                                if ("object" == typeof(propValue) && propValue != null && propName !== "excludedFromTemplateCopy") {
                                     for(var subPropName in propValue){
                                         subPropValue = propValue[subPropName];
-//                                        console.log(propName + '-' + subPropName + ':' + subPropValue);
                                         pluginSettingsFromPlugin[propName][subPropName](propValue);
                                     }
+                                } else if (propName === "excludedFromTemplateCopy") {
+                                    pluginSettingsFromPlugin[propName].removeAll();
+                                    propValue.forEach(function(excludePropName) {
+                                        pluginSettingsFromPlugin[propName].push(excludePropName);
+                                    });
                                 } else {
-//                                    console.log(propName + ': ' + propValue);
                                     pluginSettingsFromPlugin[propName](propValue);
                                 }
                             }
