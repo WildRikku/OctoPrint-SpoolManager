@@ -997,7 +997,9 @@ $(function() {
 
             // resetSettings-Stuff
              new ResetSettingsUtilV3(self.pluginSettings).assignResetSettingsFeature(PLUGIN_ID, function(data){
-                // no additional reset function needed in V2
+                 // fix colors after settings were reset. This is a hack because the color picker does not update itself
+                 $("#qrcode-fill-color-picker + .btn-group button span.color-preview").css("background-color", self.pluginSettings.qrCodeFillColor());
+                 $("#qrcode-background-color-picker + .btn-group button span.color-preview").css("background-color", self.pluginSettings.qrCodeBackgroundColor());
              });
 
             // Load all Spools
