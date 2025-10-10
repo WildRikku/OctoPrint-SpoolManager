@@ -15,7 +15,7 @@ plugin_name = "OctoPrint-SpoolManager"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
 #
-plugin_version = "1.8.0a2"
+plugin_version = "1.8.0a3"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
@@ -38,9 +38,9 @@ plugin_requires = [
     "pillow", # since 7.0.0 no Python 2.7 Support, see https://github.com/python-pillow/Pillow/blob/master/CHANGES.rst
     # "pillow >=6.2.0, <7.0.0", # since 7.0.0 no Python 2.7 Support, see https://github.com/python-pillow/Pillow/blob/master/CHANGES.rst
     "qrcode",
-    "peewee"
-    # "psycopg2-binary",  # postgres - driver
-    # "pymysql",    #mysql - driver
+	"peewee",
+	"psycopg2-binary",  # postgres - driver
+	"pymysql",	#mysql - driver
 ]
 
 ### --------------------------------------------------------------------------------------------------------------------
