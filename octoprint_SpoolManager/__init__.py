@@ -798,23 +798,23 @@ class SpoolmanagerPlugin(
         ## Database
         ## nested settings are not working, because if only a few attributes are changed it only returns these few attributes, instead the default values + adjusted values
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_USE_EXTERNAL] = False
-        datbaseLocation = DatabaseManager.buildDefaultDatabaseFileLocation(self.get_plugin_data_folder())
-        settings[SettingsKeys.SETTINGS_KEY_DATABASE_LOCAL_FILELOCATION] = datbaseLocation
+        databaseLocation = DatabaseManager.buildDefaultDatabaseFileLocation(self.get_plugin_data_folder())
+        settings[SettingsKeys.SETTINGS_KEY_DATABASE_LOCAL_FILELOCATION] = databaseLocation
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_TYPE] = "sqlite"
         # settings[SettingsKeys.SETTINGS_KEY_DATABASE_TYPE] = "postgres"
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_HOST] = "localhost"
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_PORT] = 5432
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_NAME] = "SpoolDatabase"
-        settings[SettingsKeys.SETTINGS_KEY_DATABASE_USER] = "Olli"
-        settings[SettingsKeys.SETTINGS_KEY_DATABASE_PASSWORD] = "illO"
+        settings[SettingsKeys.SETTINGS_KEY_DATABASE_USER] = "Username"
+        settings[SettingsKeys.SETTINGS_KEY_DATABASE_PASSWORD] = "Example7nEbvTCaXnmnt!39epZbANcPassword"
         # {
         #   "localDatabaseFileLocation": "",
         #   "type": "postgres",
         #   "host": "localhost",
         #   "port": 5432,
         #   "databaseName": "SpoolDatabase",
-        #   "user": "Olli",
-        #   "password": "illO"
+        #   "user": "Username",
+        #   "password": "Example7nEbvTCaXnmnt!39epZbANcPassword"
         # }
 
         settings["excludedFromTemplateCopy"] = []
