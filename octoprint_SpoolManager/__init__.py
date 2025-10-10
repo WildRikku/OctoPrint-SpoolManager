@@ -6,7 +6,7 @@ from datetime import datetime
 import flask
 import octoprint.plugin
 from octoprint.events import Events
-
+from octoprint.access.permissions import Permissions
 from octoprint_SpoolManager.DatabaseManager import DatabaseManager
 
 from octoprint_SpoolManager.newodometer import NewFilamentOdometer
@@ -741,16 +741,13 @@ class SpoolmanagerPlugin(
 
     # to allow the frontend to trigger an update
     def on_api_get(self, request):
+        if not Permissions.SETTINGS.can():
+            return "Insufficient rights", 403
+
         if len(request.values) != 0:
             action = request.values["action"]
 
-            # decide if you want the reset function in you settings dialog
-            if "isResetSettingsEnabled" == action:
-                return flask.jsonify(enabled="true")
-
-            if "resetSettings" == action:
-                self._settings.set([], self.get_settings_defaults())
-                self._settings.save()
+            if "getDefaultSettings" == action:
                 return flask.jsonify(self.get_settings_defaults())
 
             # because of some race conditions, we can't push the initialDate during client-open event. So we provide the settings on request
