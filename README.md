@@ -57,6 +57,8 @@ Changing between each release is done via the "Software Update section" in the s
 
 Hint: "Easy-switching" is possible since OctoPrint version 1.8.0 (see https://github.com/OctoPrint/OctoPrint/issues/4238).
 
+To use Spool Manager, an OctoPrint user must have the "Connection" permission. This is required to list a printer's extruders (tools), which is required to associate spools with them.
+
 ### External databases
 By chosing **"Release & Testing"** as described in [Setup](#setup) above, you get access to MySQL and PostgreSQL support. **This is currently in alpha and unsupported. If you activate it, you do so at your own risk.** Make sure to have backups around.
 
