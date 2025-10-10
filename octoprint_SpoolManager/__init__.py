@@ -6,7 +6,7 @@ from datetime import datetime
 import flask
 import octoprint.plugin
 from octoprint.events import Events
-
+from octoprint.access.permissions import Permissions
 from octoprint_SpoolManager.DatabaseManager import DatabaseManager
 
 from octoprint_SpoolManager.newodometer import NewFilamentOdometer
@@ -742,16 +742,13 @@ class SpoolmanagerPlugin(
 
     # to allow the frontend to trigger an update
     def on_api_get(self, request):
+        if not Permissions.SETTINGS.can():
+            return "Insufficient rights", 403
+
         if len(request.values) != 0:
             action = request.values["action"]
 
-            # decide if you want the reset function in you settings dialog
-            if "isResetSettingsEnabled" == action:
-                return flask.jsonify(enabled="true")
-
-            if "resetSettings" == action:
-                self._settings.set([], self.get_settings_defaults())
-                self._settings.save()
+            if "getDefaultSettings" == action:
                 return flask.jsonify(self.get_settings_defaults())
 
             # because of some race conditions, we can't push the initialDate during client-open event. So we provide the settings on request
@@ -769,8 +766,7 @@ class SpoolmanagerPlugin(
 
         # Not visible
         settings[SettingsKeys.SETTINGS_KEY_SELECTED_SPOOLS_DATABASE_IDS] = []
-        settings[SettingsKeys.SETTINGS_KEY_HIDE_EMPTY_SPOOL_IN_SIDEBAR] = False
-        settings[SettingsKeys.SETTINGS_KEY_HIDE_INACTIVE_SPOOL_IN_SIDEBAR] = True
+
         ## General
         settings[SettingsKeys.SETTINGS_KEY_REMINDER_SELECTING_SPOOL] = True
         settings[SettingsKeys.SETTINGS_KEY_WARN_IF_SPOOL_NOT_SELECTED] = True
@@ -802,23 +798,23 @@ class SpoolmanagerPlugin(
         ## Database
         ## nested settings are not working, because if only a few attributes are changed it only returns these few attributes, instead the default values + adjusted values
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_USE_EXTERNAL] = False
-        datbaseLocation = DatabaseManager.buildDefaultDatabaseFileLocation(self.get_plugin_data_folder())
-        settings[SettingsKeys.SETTINGS_KEY_DATABASE_LOCAL_FILELOCATION] = datbaseLocation
+        databaseLocation = DatabaseManager.buildDefaultDatabaseFileLocation(self.get_plugin_data_folder())
+        settings[SettingsKeys.SETTINGS_KEY_DATABASE_LOCAL_FILELOCATION] = databaseLocation
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_TYPE] = "sqlite"
         # settings[SettingsKeys.SETTINGS_KEY_DATABASE_TYPE] = "postgres"
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_HOST] = "localhost"
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_PORT] = 5432
         settings[SettingsKeys.SETTINGS_KEY_DATABASE_NAME] = "SpoolDatabase"
-        settings[SettingsKeys.SETTINGS_KEY_DATABASE_USER] = "Olli"
-        settings[SettingsKeys.SETTINGS_KEY_DATABASE_PASSWORD] = "illO"
+        settings[SettingsKeys.SETTINGS_KEY_DATABASE_USER] = "Username"
+        settings[SettingsKeys.SETTINGS_KEY_DATABASE_PASSWORD] = "Example7nEbvTCaXnmnt!39epZbANcPassword"
         # {
         #   "localDatabaseFileLocation": "",
         #   "type": "postgres",
         #   "host": "localhost",
         #   "port": 5432,
         #   "databaseName": "SpoolDatabase",
-        #   "user": "Olli",
-        #   "password": "illO"
+        #   "user": "Username",
+        #   "password": "Example7nEbvTCaXnmnt!39epZbANcPassword"
         # }
 
         settings["excludedFromTemplateCopy"] = []

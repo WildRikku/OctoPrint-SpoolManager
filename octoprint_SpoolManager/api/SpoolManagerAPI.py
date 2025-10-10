@@ -526,10 +526,6 @@ class SpoolManagerAPI(octoprint.plugin.BlueprintPlugin):
         else:
             abort(404)
 
-    # hmmm..TODO not fully tested
-    def is_blueprint_protected(self):
-        return False  # No API key required to request API access
-
     #####################################################################################################   GENERATE QR FOR SPOOL
     @octoprint.plugin.BlueprintPlugin.route("/generateQRCode/<string:databaseId>", methods=["GET"])
     def generateSpoolQRCode(self, databaseId):

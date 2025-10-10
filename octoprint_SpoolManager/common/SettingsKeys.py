@@ -4,8 +4,6 @@ from __future__ import absolute_import
 class SettingsKeys():
 
 	SETTINGS_KEY_SELECTED_SPOOLS_DATABASE_IDS = "selectedSpoolsDatabaseIds"
-	SETTINGS_KEY_HIDE_EMPTY_SPOOL_IN_SIDEBAR = "hideEmptySpoolsInSidebar"
-	SETTINGS_KEY_HIDE_INACTIVE_SPOOL_IN_SIDEBAR = "hideInactiveSpoolsInSidebar"
 
 	SETTINGS_KEY_REMINDER_SELECTING_SPOOL = "reminderSelectingSpool"
 	SETTINGS_KEY_WARN_IF_SPOOL_NOT_SELECTED = "warnIfSpoolNotSelected"

@@ -146,14 +146,14 @@ FPE;	2.16
                     <label class="control-label">Fill color</label>
                     <div class="controls">
 {#                        <input type="text" class="input-midi text-left" data-bind="value: pluginSettings.qrCodeFillColor">#}
-                        <input id="qrcode-fill-color-picker" type="text" name="border-color" class="pick-a-color form-control input-mini">
+                        <input data-bind="value: pluginSettings.qrCodeFillColor" id="qrcode-fill-color-picker" type="text" name="border-color" class="pick-a-color form-control input-mini">
                     </div>
                 </div>
                 <div class="control-group">
                     <label class="control-label">Background color</label>
                     <div class="controls">
 {#                        <input type="text" class="input-midi text-left" data-bind="value: pluginSettings.qrCodeBackgroundColor">#}
-                        <input id="qrcode-background-color-picker" type="text" name="border-color" class="pick-a-color form-control input-mini">
+                        <input data-bind="value: pluginSettings.qrCodeBackgroundColor" id="qrcode-background-color-picker" type="text" name="border-color" class="pick-a-color form-control input-mini">
                     </div>
                 </div>
                 <div class="control-group">
@@ -177,7 +177,7 @@ FPE;	2.16
                         </label>
                     </div>
                     <div class="controls">
-                        <input type="text" class="input-xlarge text-left" data-bind="textInput: pluginSettings.qrCodeURLPrefix, enable: pluginSettings.qrCodeUseURLPrefix" placeholder="http://192.168.178.37">
+                        <input type="text" class="input-xlarge text-left" data-bind="value: pluginSettings.qrCodeURLPrefix, enable: pluginSettings.qrCodeUseURLPrefix" placeholder="http://192.0.2.0">
                     </div>
                     <div class="control-label" data-bind="visible:pluginSettings.qrCodeUseURLPrefix" >
                         <a class="text-center" target="_newTab" data-bind="attr: $root.generateQRCodeTestLink()">
