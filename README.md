@@ -70,7 +70,7 @@ If you want to take those risks, here is how it works:
 3. Install the appropriate Python packages for your database. For MySQL and OctoPi users, this will *probably* be `pymysql`. However, it might be something else. This depends on your setup. If you get connection errors later, this will be due to the wrong package being installed or because the wrong installation method was chosen. Make sure you understand how installing OctoPrint works and how Python modules work.
 4. Activate **"Release & Testing"** as described in [Setup](#setup) above.
 5. Restart OctoPrint.
-6. Setup your connection in the SpoolManager settings.
+6. Setup your connection in the SpoolManager settings: Enter your connection information and click "Test connection". If it says that it could not connect, your connection information is incorrect. If it says that it can not find a table, that's expected. (I said it's in alpha.) Save, restart OctoPrint and test again. The test should now be successful. You can now import your local database.
 
 ## New maintainer
 

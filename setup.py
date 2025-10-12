@@ -41,6 +41,7 @@ plugin_requires = [
 	"peewee",
 	"psycopg2-binary",  # postgres - driver
 	"pymysql",	#mysql - driver
+	"cryptography", # connecting to MySQL
 ]
 
 ### --------------------------------------------------------------------------------------------------------------------
