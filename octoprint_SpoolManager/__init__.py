@@ -30,6 +30,9 @@ class SpoolmanagerPlugin(
     def is_api_protected(self) -> bool:
         return True
 
+    def is_template_autoescaped(self):
+        return True
+
     def initialize(self):
         self._logger.info("Start initializing")
 
