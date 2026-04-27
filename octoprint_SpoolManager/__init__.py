@@ -27,6 +27,9 @@ class SpoolmanagerPlugin(
                             octoprint.plugin.EventHandlerPlugin,
 ):
 
+    def is_api_protected(self) -> bool:
+        return True
+
     def initialize(self):
         self._logger.info("Start initializing")
 
