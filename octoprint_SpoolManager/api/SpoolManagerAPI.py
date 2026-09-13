@@ -612,7 +612,7 @@ class SpoolManagerAPI(octoprint.plugin.BlueprintPlugin):
         htmlContent = ""
         spoolModel = self._databaseManager.loadSpool(databaseId)
         if (spoolModel is not None):
-            self._logger.info("Generate HTML iew for QR-Code")
+            self._logger.info("Generate HTML view for QR-Code")
             htmlContent = \
                         "<h3>Database Id: " + str(spoolModel.databaseId) + "</h3>" \
                         "<h3>Spoolname: " + spoolModel.displayName + "</h3>" \
